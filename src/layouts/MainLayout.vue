@@ -31,10 +31,8 @@
     <!-- Page container -->
     <q-page-container>
       <router-view />
-    </q-page-container>
-
-    <!-- Footer -->
-    <q-footer elevated position="relative">
+    </q-page-container>    <!-- Footer -->
+    <q-footer elevated>
       <FooterBar />
     </q-footer>
   </q-layout>

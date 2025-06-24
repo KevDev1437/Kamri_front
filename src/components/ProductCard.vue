@@ -2,7 +2,12 @@
   <q-card class="product-card" flat bordered @click="goToProduct">
     <!-- Image -->
     <div class="img-wrapper">
-      <q-img :src="product.image" ratio="1" class="product-img" />
+      <q-img
+        :src="product.image"
+        ratio="1"
+        class="product-img"
+        :alt="product.name"
+      />
 
       <!-- Badge promo / eco -->
       <q-badge

@@ -1,13 +1,14 @@
 <template>
   <div>
-    <!-- Grille 5 colonnes -->
-    <div class="product-grid">
-      <!-- on boucle et on place la carte custom -->
-      <ProductCard
+    <!-- Grille responsive avec Quasar -->
+    <div class="row q-col-gutter-md">
+      <div
         v-for="product in displayProducts"
         :key="product.id"
-        :product="product"
-      />
+        class="col-6 col-md-4 col-lg-2"
+      >
+        <ProductCard :product="product" />
+      </div>
     </div>
 
     <!-- Bouton Voir plus -->
@@ -19,8 +20,8 @@
 
 <script setup>
 import ProductCard from 'components/ProductCard.vue'; /* <-- nouvel import */
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 
 const props = defineProps({
   products: { type: Array, default: () => [] }

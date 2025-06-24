@@ -17,24 +17,10 @@
       <StyleQuiz />
 
       <!-- Catégories -->
-      <CategoryGrid :categories="categories" class="q-mt-xl" />
-
-      <!-- Mobile -->
-      <CategoryPills
-        class="q-mb-md flex lg-hide"
-        :categories="categories"
-        @select="onSelectCat"
-      />
-
-      <!-- Desktop -->
-      <div class="row justify-between q-gutter-lg gt-sm">
-        <CategoryCard
-          v-for="cat in categories.slice(0,12)"
-          :key="cat.id"
-          :category="cat"
-        />
+      <div class="q-mt-xl">
+        <h2 class="text-h5 q-mb-lg">Nos catégories</h2>
+        <CategoryGrid :categories="categories" />
       </div>
-
 
       <!-- Produits -->
       <div class="q-mt-xl">
@@ -69,30 +55,107 @@ import ProductGrid from 'src/components/ProductGrid.vue'
 import { onMounted, ref } from 'vue'
 
 // Data refs
-const categories = ref([])
+const categories = ref([
+  {
+    id: 1,
+    name: 'FEMMES',
+    slug: 'femmes',
+    image: '/images/categories/women.jpg',
+    isHot: true
+  },
+  {
+    id: 2,
+    name: 'CURVY',
+    slug: 'curvy',
+    image: '/images/categories/curvy.jpg',
+    isHot: true
+  },
+  {
+    id: 3,
+    name: 'HOMME',
+    slug: 'homme',
+    image: '/images/categories/men.jpg',
+    isHot: false
+  },
+  {
+    id: 4,
+    name: 'ENFANT & BÉBÉ',
+    slug: 'enfant-bebe',
+    image: '/images/categories/kids.jpg',
+    isHot: true
+  },
+  {
+    id: 5,
+    name: 'BEAUTÉ & BIEN-ÊTRE',
+    slug: 'beaute-bien-etre',
+    image: '/images/categories/beauty.jpg',
+    isHot: true
+  },
+  {
+    id: 6,
+    name: 'SPORTS',
+    slug: 'sports',
+    image: '/images/categories/sports.jpg',
+    isHot: true
+  },
+  {
+    id: 7,
+    name: 'ROBES',
+    slug: 'robes',
+    image: '/images/categories/dresses.jpg',
+    isHot: false
+  },
+  {
+    id: 8,
+    name: 'MAISON',
+    slug: 'maison',
+    image: '/images/categories/home.jpg',
+    isHot: true
+  },
+  {
+    id: 9,
+    name: 'ÉLECTRONIQUE & AUTO',
+    slug: 'electronique-auto',
+    image: '/images/categories/electronics.jpg',
+    isHot: false
+  },
+  {
+    id: 10,
+    name: 'SOUS-VÊTEMENTS & PYJAMAS',
+    slug: 'sous-vetements-pyjamas',
+    image: '/images/categories/underwear.jpg',
+    isHot: true
+  },
+  {
+    id: 11,
+    name: 'MAILLOTS DE BAIN',
+    slug: 'maillots-de-bain',
+    image: '/images/categories/swimwear.jpg',
+    isHot: false
+  },
+  {
+    id: 12,
+    name: 'ACCESSOIRES, BIJOUX, SACS & CHAUSSURES',
+    slug: 'accessoires-bijoux-sacs-chaussures',
+    image: '/images/categories/accessories.jpg',
+    isHot: false
+  }
+])
 const featuredProducts = ref([])
 const liveStreamUrl = ref('https://example.com/live')
 const magazineArticles = ref([])
 
-// Placeholder data for demo
-categories.value = [
-  { id: 1, name: 'Mode',    image: 'https://…/mode.jpg',    tag: 'TOP' },
-  { id: 2, name: 'Maison',  image: 'https://…/home.jpg' },
-  { id: 3, name: 'High-tech', image: 'https://…/tech.jpg' },
-  { id: 4, name: 'Sport',   image: 'https://…/sport.jpg' }
-]
-
 featuredProducts.value = [
-  { id: 1, image: 'https://via.placeholder.com/200x150', name: 'Produit A', price: 29.99 },
-  { id: 2, image: 'https://via.placeholder.com/200x150', name: 'Produit B', price: 49.99 },
-  { id: 3, image: 'https://via.placeholder.com/200x150', name: 'Produit C', price: 19.99 },
-  { id: 4, image: 'https://via.placeholder.com/200x150', name: 'Produit D', price: 39.99 },
-  { id: 5, image: 'https://via.placeholder.com/200x150', name: 'Produit E', price: 59.99 },
-  { id: 6, image: 'https://via.placeholder.com/200x150', name: 'Produit F', price: 24.99 },
-  { id: 7, image: 'https://via.placeholder.com/200x150', name: 'Produit G', price: 34.99 },
-  { id: 8, image: 'https://via.placeholder.com/200x150', name: 'Produit H', price: 44.99 },
-  { id: 9, image: 'https://via.placeholder.com/200x150', name: 'Produit I', price: 54.99 },
-  { id: 10, image: 'https://via.placeholder.com/200x150', name: 'Produit J', price: 64.99 },
+  { id: 1, image: 'https://picsum.photos/200/200?random=1', name: 'Produit A', price: 29.99 },
+  { id: 2, image: 'https://picsum.photos/200/200?random=2', name: 'Produit B', price: 49.99 },
+  { id: 3, image: 'https://picsum.photos/200/200?random=3', name: 'Produit C', price: 19.99 },
+  { id: 4, image: 'https://picsum.photos/200/200?random=4', name: 'Produit D', price: 39.99 },
+  { id: 5, image: 'https://picsum.photos/200/200?random=5', name: 'Produit E', price: 59.99 },
+  { id: 6, image: 'https://picsum.photos/200/200?random=6', name: 'Produit F', price: 24.99 },
+  { id: 7, image: 'https://picsum.photos/200/200?random=7', name: 'Produit G', price: 34.99 },
+  { id: 8, image: 'https://picsum.photos/200/200?random=8', name: 'Produit H', price: 44.99 },
+  { id: 9, image: 'https://picsum.photos/200/200?random=9', name: 'Produit I', price: 54.99 },
+  { id: 10, image: 'https://picsum.photos/200/200?random=10', name: 'Produit J', price: 64.99 },
   { id: 11, image: 'https://via.placeholder.com/200x150', name: 'Produit K', price: 74.99 },
   { id: 12, image: 'https://via.placeholder.com/200x150', name: 'Produit L', price: 84.99 },
   { id: 13, image: 'https://via.placeholder.com/200x150', name: 'Produit M', price: 94.99 },
@@ -166,6 +229,8 @@ onMounted(async () => {
     console.error('Erreur fetching home data:', err)
   }
 })
+
+
 </script>
 
 <style scoped>
