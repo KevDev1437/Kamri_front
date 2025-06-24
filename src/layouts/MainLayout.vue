@@ -1,102 +1,72 @@
+<!-- src/layouts/MainLayout.vue -->
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
-      <q-toolbar>
-        <q-btn
-          flat
-          dense
-          round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
-        />
-
-        <q-toolbar-title>
-          Quasar App
-        </q-toolbar-title>
-
-        <div>Quasar v{{ $q.version }}</div>
-      </q-toolbar>
+  <q-layout>
+    <!-- Header -->
+    <q-header elevated position="relative">
+      <HeaderBar
+        @toggle-drawer="drawerOpen = !drawerOpen"
+        @image-search="onImageSearch"
+      />
     </q-header>
 
+    <!-- Drawer (mobile only) -->
     <q-drawer
-      v-model="leftDrawerOpen"
-      show-if-above
+      v-if="$q.screen.lt.sm"
+      v-model="drawerOpen"
       bordered
+      breakpoint="600"
     >
       <q-list>
-        <q-item-label
-          header
+        <q-item
+          clickable
+          v-for="link in navLinks"
+          :key="link.name"
+          @click="navigate(link.path)"
         >
-          Essential Links
-        </q-item-label>
-
-        <EssentialLink
-          v-for="link in linksList"
-          :key="link.title"
-          v-bind="link"
-        />
+          <q-item-section>{{ link.name }}</q-item-section>
+        </q-item>
       </q-list>
     </q-drawer>
 
+    <!-- Page container -->
     <q-page-container>
       <router-view />
     </q-page-container>
+
+    <!-- Footer -->
+    <q-footer elevated position="relative">
+      <FooterBar />
+    </q-footer>
   </q-layout>
 </template>
 
 <script setup>
+import FooterBar from 'components/FooterBar.vue'
+import HeaderBar from 'components/HeaderBar.vue'
+import { useQuasar } from 'quasar'
 import { ref } from 'vue'
-import EssentialLink from 'components/EssentialLink.vue'
+import { useRouter } from 'vue-router'
 
-const linksList = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
+const $q = useQuasar()
+const drawerOpen = ref(false)
+const router = useRouter()
+
+const navLinks = [
+  { name: 'Accueil', path: '/' },
+  { name: 'Produits', path: '/products' },
+  { name: 'Mon compte', path: '/account' }
 ]
 
-const leftDrawerOpen = ref(false)
+function navigate(path) {
+  drawerOpen.value = false
+  router.push(path)
+}
 
-function toggleLeftDrawer () {
-  leftDrawerOpen.value = !leftDrawerOpen.value
+function onImageSearch() {
+  console.log('Recherche visuelle à venir')
 }
 </script>
+
+<style scoped>
+/* Aucun style fixe : header et footer défilent avec le contenu */
+</style>
