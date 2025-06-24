@@ -1,112 +1,78 @@
 <!-- src/components/StyleQuiz.vue -->
 <template>
-  <div class="style-quiz q-pa-md">
+  <div class="style-quiz">
     <h2 class="text-h5 text-center q-mb-lg">{{ title }}</h2>
 
-    <!-- États de chargement et d'erreur -->
+    <!-- Loading -->
     <div v-if="loading" class="text-center q-pa-xl">
       <q-spinner-dots color="primary" size="40" />
-      <div class="text-grey q-mt-sm">Chargement des styles...</div>
+      <div class="text-grey q-mt-sm">Chargement des styles…</div>
     </div>
 
+    <!-- Error -->
     <div v-else-if="error" class="text-center q-pa-xl">
       <q-icon name="error" color="negative" size="40px" />
       <div class="text-negative q-mt-sm">Une erreur est survenue</div>
-      <q-btn
-        flat
-        color="primary"
-        label="Réessayer"
-        class="q-mt-md"
-        @click="loadStyles"
-      />
+      <q-btn flat color="primary" label="Réessayer" class="q-mt-md" @click="loadStyles" />
     </div>
 
-    <!-- Grille des styles -->
+    <!-- Styles -->
     <transition-group
+      tag="div"
       appear
       enter-active-class="animated fadeIn"
       leave-active-class="animated fadeOut"
-      class="row q-col-gutter-md"
+      class="style-circles-container row justify-center q-gutter-xl"
     >
       <div
         v-for="style in styles"
         :key="style.value"
-        class="col-6 col-sm-3"
+        class="style-circle cursor-pointer"
+        :class="{ selected: selectedStyle?.value === style.value }"
+        @click="handleStyleSelect(style)"
+        v-ripple
       >
-        <q-card
-          class="style-card cursor-pointer"
-          :class="{ 'selected': selectedStyle?.value === style.value }"
-          @click="handleStyleSelect(style)"
-          v-ripple
-        >
-          <q-card-section class="text-center">
-            <q-icon :name="style.icon" size="48px" color="primary" />
-            <div class="text-subtitle1 q-mt-sm">{{ style.label }}</div>
-          </q-card-section>
-        </q-card>
+        <div class="style-label">{{ style.label }}</div>
       </div>
     </transition-group>
-
-    <!-- Bouton passer -->
-    <div class="text-center q-mt-lg">
-      <q-btn
-        flat
-        color="grey"
-        label="Passer cette étape"
-        @click="handleSkip"
-      />
-    </div>
   </div>
 </template>
 
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
 
+/* props / emits ----------------------------------------------------------- */
 const props = defineProps({
-  title: {
-    type: String,
-    default: 'Quel est votre style ?',
-    required: false
-  },
-  preselectedStyle: {
-    type: String,
-    default: null,
-    required: false
-  }
+  title: { type: String, default: 'Quel est votre style ?' },
+  preselectedStyle: String
 })
 
 const emit = defineEmits({
-  select: (style) => {
-    return style && typeof style === 'object' && 'value' in style && 'label' in style
-  },
-  skip: null,
-  error: (err) => err instanceof Error,
-  loaded: (styles) => Array.isArray(styles)
+  select:  (style) => !!style,
+  error:   (err)   => err instanceof Error,
+  loaded:  (arr)   => Array.isArray(arr)
 })
 
-const router = useRouter()
+/* state ------------------------------------------------------------------- */
 const title = computed(() => props.title)
 
-// État du quiz
 const styles = ref([
-  { value: 'casual', label: 'Décontracté', icon: 'style' },
-  { value: 'chic', label: 'Élégant', icon: 'style' },
-  { value: 'sporty', label: 'Sportif', icon: 'style' },
-  { value: 'bohemian', label: 'Bohème', icon: 'style' }
+  { value: 'casual',   label: 'Décontracté' },
+  { value: 'chic',     label: 'Élégant'     },
+  { value: 'sporty',   label: 'Sportif'     },
+  { value: 'bohemian', label: 'Bohème'      }
 ])
 
-const loading = ref(true)
-const error = ref(null)
-const selectedStyle = ref(null)
+const loading        = ref(true)
+const error          = ref(null)
+const selectedStyle  = ref(null)
 
-// Chargement des styles
-const loadStyles = async () => {
+/* methods ----------------------------------------------------------------- */
+async function loadStyles () {
   try {
     loading.value = true
-    error.value = null
-    // Simulation d'un appel API
-    await new Promise(resolve => setTimeout(resolve, 1500))
+    error.value   = null
+    await new Promise(r => setTimeout(r, 1200))            // fake API
     loading.value = false
     emit('loaded', styles.value)
   } catch (err) {
@@ -115,75 +81,57 @@ const loadStyles = async () => {
   }
 }
 
-// Gestion de la sélection
-const handleStyleSelect = (style) => {
+function handleStyleSelect (style) {
   selectedStyle.value = style
   emit('select', style)
 }
 
-const handleSkip = () => {
-  emit('skip')
-  router.push('/products')
-}
-
-// Surveillance du style présélectionné
-watch(() => props.preselectedStyle, (newStyle) => {
-  if (newStyle && styles.value.find(s => s.value === newStyle)) {
-    selectedStyle.value = styles.value.find(s => s.value === newStyle)
-  }
+/* watchers / life-cycle --------------------------------------------------- */
+watch(() => props.preselectedStyle, (val) => {
+  const found = styles.value.find(s => s.value === val)
+  if (found) selectedStyle.value = found
 }, { immediate: true })
 
-// Initialisation
-onMounted(() => {
-  loadStyles()
-})
+onMounted(loadStyles)
 </script>
 
 <style lang="scss" scoped>
 .style-quiz {
   max-width: 800px;
   margin: 0 auto;
+  padding: 2rem 1rem;
 }
 
-.style-card {
-  transition: all 0.3s ease;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  &.selected {
-    border: 2px solid $primary;
-    background: lighten($primary, 45%);
-  }
+/* conteneur flex horizontal – wrap sur mobile */
+.style-circles-container {
+  flex-wrap: wrap;
 }
 
-// Animations
-.animated {
-  animation-duration: 0.3s;
-  animation-fill-mode: both;
+.style-circle {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,.08);
+  border: 2px solid transparent;
+  transition: transform .2s, box-shadow .2s, border-color .2s;
+
+  &:hover        { transform: translateY(-4px); box-shadow: 0 4px 8px rgba(0,0,0,.12); }
+  &.selected     { border-color: var(--q-primary); background: rgba(var(--q-primary-rgb),.1); }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.style-label {
+  font-size: 1rem;
+  font-weight: 500;
+  text-align: center;
+  color: var(--q-grey-8);
 }
 
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-}
+/* keyframes pour l’apparition / disparition */
+.animated { animation-duration: .3s; animation-fill-mode: both; }
+@keyframes fadeIn  { from {opacity:0; transform:translateY(20px)} to {opacity:1; transform:none} }
+@keyframes fadeOut { from {opacity:1; transform:none}               to {opacity:0; transform:translateY(20px)} }
 </style>

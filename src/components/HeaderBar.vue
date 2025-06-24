@@ -47,7 +47,7 @@
       <!-- Barre de recherche qui occupe tout l'espace -->
       <div class="search-container">
         <SearchBar />
-        <q-btn flat round dense icon="camera_alt" class="camera-btn" @click="$emit('image-search')" />
+
       </div>
 
       <!-- Action Icons -->
