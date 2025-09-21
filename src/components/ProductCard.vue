@@ -1,10 +1,5 @@
 <template>
-  <q-card
-    class="product-card cursor-pointer"
-    flat
-    bordered
-    @click="$emit('click', product)"
-  >
+  <q-card class="product-card cursor-pointer" flat bordered @click="$emit('click', product)">
     <!-- Image avec gestion des erreurs -->
     <div class="img-wrapper">
       <q-img
@@ -26,27 +21,11 @@
 
       <!-- Badges -->
       <div class="badges-container" v-if="hasBadges">
-        <q-badge
-          v-if="product.discountPercentage"
-          color="red"
-          class="discount-badge"
-        >
+        <q-badge v-if="product.discountPercentage" color="red" class="discount-badge">
           -{{ product.discountPercentage }}%
         </q-badge>
-        <q-badge
-          v-if="product.isNew"
-          color="green-7"
-          class="new-badge"
-        >
-          NOUVEAU
-        </q-badge>
-        <q-badge
-          v-if="product.isEco"
-          color="teal"
-          class="eco-badge"
-        >
-          ECO
-        </q-badge>
+        <q-badge v-if="product.isNew" color="green-7" class="new-badge"> NOUVEAU </q-badge>
+        <q-badge v-if="product.isEco" color="teal" class="eco-badge"> ECO </q-badge>
       </div>
 
       <!-- Actions rapides -->
@@ -81,8 +60,8 @@
 
       <!-- Prix -->
       <div class="price-row">
-        <template v-if="product.discountPrice">
-          <span class="current-price">{{ formatPrice(product.discountPrice) }}</span>
+        <template v-if="product.sale_price">
+          <span class="current-price">{{ formatPrice(product.sale_price) }}</span>
           <span class="original-price">{{ formatPrice(product.price) }}</span>
         </template>
         <span v-else class="current-price">
@@ -93,12 +72,7 @@
       <!-- Notation et ventes -->
       <div class="rating-row" v-if="showRating">
         <div class="rating">
-          <q-rating
-            :model-value="product.rating"
-            size="12px"
-            color="amber"
-            readonly
-          />
+          <q-rating :model-value="product.rating" size="12px" color="amber" readonly />
           <span class="rating-count" v-if="product.ratingCount">
             ({{ formatNumber(product.ratingCount) }})
           </span>
@@ -110,13 +84,7 @@
 
       <!-- Tags -->
       <div class="tags-row" v-if="product.tags?.length">
-        <q-chip
-          v-for="tag in product.tags.slice(0, 2)"
-          :key="tag"
-          dense
-          size="sm"
-          class="tag-chip"
-        >
+        <q-chip v-for="tag in product.tags.slice(0, 2)" :key="tag" dense size="sm" class="tag-chip">
           {{ tag }}
         </q-chip>
       </div>
@@ -132,16 +100,18 @@ const props = defineProps({
     type: Object,
     required: true,
     validator: (product) => {
-      return product.name &&
-             typeof product.price === 'number' &&
-             (!product.discountPrice || typeof product.discountPrice === 'number') &&
-             (!product.rating || (product.rating >= 0 && product.rating <= 5))
-    }
+      return (
+        product.name &&
+        typeof product.price === 'number' &&
+        (!product.discountPrice || typeof product.discountPrice === 'number') &&
+        (!product.rating || (product.rating >= 0 && product.rating <= 5))
+      )
+    },
   },
   showRating: {
     type: Boolean,
-    default: true
-  }
+    default: true,
+  },
 })
 
 const emit = defineEmits(['click', 'favorite', 'add-to-cart', 'error'])
@@ -156,14 +126,14 @@ const hasBadges = computed(() => {
 const formatPrice = (price) => {
   return new Intl.NumberFormat('fr-FR', {
     style: 'currency',
-    currency: 'EUR'
+    currency: 'EUR',
   }).format(price)
 }
 
 // Format des nombres
 const formatNumber = (num) => {
   if (num >= 1000) {
-    return `${(num/1000).toFixed(1)}k`
+    return `${(num / 1000).toFixed(1)}k`
   }
   return num.toString()
 }
@@ -172,7 +142,7 @@ const formatNumber = (num) => {
 const handleImageError = () => {
   emit('error', {
     type: 'image',
-    product: props.product
+    product: props.product,
   })
 }
 </script>
@@ -180,12 +150,14 @@ const handleImageError = () => {
 <style scoped>
 .product-card {
   height: 100%;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .product-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
 }
 
 .img-wrapper {
@@ -240,7 +212,7 @@ const handleImageError = () => {
 
 .current-price {
   font-weight: 700;
-  color: #FF6B6B;
+  color: #ff6b6b;
   font-size: 1.1rem;
 }
 
