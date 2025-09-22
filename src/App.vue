@@ -5,6 +5,7 @@
 <script setup>
 import { onMounted } from 'vue'
 import { useAuthStore } from 'stores/auth'
+import 'src/data/mockProducts.js'
 
 const authStore = useAuthStore()
 

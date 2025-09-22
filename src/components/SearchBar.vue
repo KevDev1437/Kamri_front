@@ -90,7 +90,7 @@ function onSearch() {
   if (!searchTerm.value.trim()) return
   showSuggestions.value = false
   router.push({
-    path: '/search',
+    path: '/products',
     query: { q: searchTerm.value },
   })
 }

@@ -1,4 +1,3 @@
-<!-- src/pages/account/OrdersPage.vue -->
 <template>
   <q-page class="q-pa-md">
     <div class="container">
@@ -29,148 +28,513 @@
 
         <!-- Main content -->
         <div class="col-12 col-md-9">
-          <h2 class="text-h5 q-mb-lg">Mes commandes</h2>
-
-          <!-- Loading state -->
-          <div v-if="loading" class="text-center q-py-xl">
-            <q-spinner-dots size="50px" color="primary" />
-            <div class="text-body2 q-mt-md">Chargement des commandes...</div>
-          </div>
-
-          <!-- Empty state -->
-          <div v-else-if="orders.length === 0" class="text-center q-py-xl">
-            <q-icon name="shopping_bag" size="50px" color="grey-5" />
-            <div class="text-h6 q-mt-md">Aucune commande</div>
-            <div class="text-body2 text-grey-7 q-mt-sm">
-              Vous n'avez pas encore passé de commande
+          <!-- Header -->
+          <div class="row items-center justify-between q-mb-lg">
+            <div>
+              <h2 class="text-h5 q-mb-none">Mes commandes</h2>
+              <div class="text-caption text-grey-7">
+                {{ ordersStore.total }} commande{{ ordersStore.total > 1 ? 's' : '' }}
+                <span v-if="ordersStore.hasActiveFilters">
+                  ({{ ordersStore.activeFiltersCount }} filtre{{
+                    ordersStore.activeFiltersCount > 1 ? 's' : ''
+                  }}
+                  actif{{ ordersStore.activeFiltersCount > 1 ? 's' : '' }})
+                </span>
+              </div>
             </div>
-            <q-btn label="Découvrir nos produits" color="primary" to="/" class="q-mt-md" />
           </div>
 
-          <!-- Orders list -->
-          <div v-else>
-            <q-list>
-              <q-item v-for="order in orders" :key="order.id" class="q-pa-md" bordered>
-                <q-item-section>
-                  <div class="row items-center justify-between">
-                    <div>
-                      <div class="text-h6">Commande #{{ order.id }}</div>
-                      <div class="text-body2 text-grey-7">
-                        Passée le {{ formatDate(order.created_at) }}
-                      </div>
-                      <div class="text-body2">
-                        {{ order.items.length }} article{{ order.items.length > 1 ? 's' : '' }} •
-                        Total: {{ formatPrice(order.total) }}
-                      </div>
-                    </div>
+          <!-- Toolbar Filtres -->
+          <q-card class="q-mb-lg">
+            <q-card-section>
+              <q-form @submit.prevent="applyFilters" class="q-gutter-md">
+                <div class="row q-col-gutter-md">
+                  <!-- Recherche -->
+                  <div class="col-12 col-md-4">
+                    <q-input
+                      v-model="localFilters.q"
+                      label="Rechercher (numéro, produit, référence)"
+                      outlined
+                      dense
+                      clearable
+                      :debounce="300"
+                      @update:model-value="onSearchChange"
+                      aria-label="Rechercher dans les commandes"
+                    >
+                      <template #prepend>
+                        <q-icon name="search" />
+                      </template>
+                    </q-input>
+                  </div>
 
-                    <div class="text-right">
-                      <q-chip
-                        :color="getStatusColor(order.status)"
-                        text-color="white"
-                        :label="order.status"
+                  <!-- Statut -->
+                  <div class="col-12 col-md-3">
+                    <q-select
+                      v-model="localFilters.status"
+                      :options="ordersStore.statusOptions"
+                      label="Statut"
+                      outlined
+                      dense
+                      clearable
+                      @update:model-value="onFilterChange"
+                      aria-label="Filtrer par statut"
+                    />
+                  </div>
+
+                  <!-- Date de -->
+                  <div class="col-12 col-md-2">
+                    <q-input
+                      v-model="localFilters.dateFrom"
+                      type="date"
+                      label="Depuis"
+                      outlined
+                      dense
+                      @update:model-value="onFilterChange"
+                      aria-label="Date de début"
+                    />
+                  </div>
+
+                  <!-- Date jusqu'à -->
+                  <div class="col-12 col-md-2">
+                    <q-input
+                      v-model="localFilters.dateTo"
+                      type="date"
+                      label="Jusqu'à"
+                      outlined
+                      dense
+                      @update:model-value="onFilterChange"
+                      aria-label="Date de fin"
+                    />
+                  </div>
+
+                  <!-- Actions -->
+                  <div class="col-12 col-md-1">
+                    <div class="row q-gutter-xs">
+                      <q-btn
+                        color="primary"
+                        icon="search"
+                        @click="applyFilters"
+                        :loading="ordersStore.loading"
+                        aria-label="Appliquer les filtres"
                       />
-                      <div class="q-mt-sm">
-                        <q-btn
-                          flat
-                          dense
-                          color="primary"
-                          label="Voir les détails"
-                          @click="viewOrderDetails(order)"
-                        />
-                      </div>
+                      <q-btn
+                        v-if="ordersStore.hasActiveFilters"
+                        flat
+                        color="grey-7"
+                        icon="refresh"
+                        @click="resetFilters"
+                        aria-label="Réinitialiser les filtres"
+                      />
                     </div>
                   </div>
+                </div>
+
+                <!-- Chips Filtres Actifs -->
+                <div v-if="ordersStore.hasActiveFilters" class="q-mt-md">
+                  <div class="row q-gutter-xs">
+                    <q-chip
+                      v-for="filter in ordersStore.activeFilters"
+                      :key="filter.key"
+                      removable
+                      color="primary"
+                      text-color="white"
+                      @remove="removeFilter(filter.key)"
+                      :aria-label="`Supprimer le filtre ${filter.label}`"
+                    >
+                      {{ filter.label }}
+                    </q-chip>
+                  </div>
+                </div>
+              </q-form>
+            </q-card-section>
+          </q-card>
+
+          <!-- Erreur -->
+          <q-banner v-if="ordersStore.error" class="bg-negative text-white q-mb-md" rounded>
+            <template #avatar>
+              <q-icon name="error" />
+            </template>
+            {{ ordersStore.error }}
+            <template #action>
+              <q-btn flat color="white" label="Réessayer" @click="ordersStore.fetch()" />
+            </template>
+          </q-banner>
+
+          <!-- Loading Skeleton -->
+          <div v-if="ordersStore.loading && ordersStore.items.length === 0" class="q-mb-lg">
+            <q-list bordered separator>
+              <q-item v-for="n in 5" :key="n">
+                <q-item-section avatar>
+                  <q-skeleton type="circle" size="40px" />
+                </q-item-section>
+                <q-item-section>
+                  <q-skeleton type="text" width="60%" />
+                  <q-skeleton type="text" width="40%" />
+                </q-item-section>
+                <q-item-section side>
+                  <q-skeleton type="text" width="80px" />
                 </q-item-section>
               </q-item>
             </q-list>
           </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Order details dialog -->
-    <q-dialog v-model="showOrderDetails" maximized>
-      <q-card v-if="selectedOrder">
-        <q-card-section class="row items-center q-pb-none">
-          <div class="text-h6">Commande #{{ selectedOrder.id }}</div>
-          <q-space />
-          <q-btn icon="close" flat round dense v-close-popup />
-        </q-card-section>
+          <!-- Empty state -->
+          <div v-else-if="ordersStore.items.length === 0" class="text-center q-py-xl">
+            <q-icon name="shopping_bag" size="64px" color="grey-5" />
+            <div class="text-h6 q-mt-md text-grey-7">
+              {{
+                ordersStore.hasActiveFilters
+                  ? 'Aucune commande ne correspond à vos critères'
+                  : 'Aucune commande'
+              }}
+            </div>
+            <div class="text-body2 text-grey-6 q-mt-sm">
+              {{
+                ordersStore.hasActiveFilters
+                  ? 'Essayez de modifier vos filtres'
+                  : "Vous n'avez pas encore passé de commande."
+              }}
+            </div>
+            <q-btn
+              v-if="ordersStore.hasActiveFilters"
+              color="primary"
+              label="Réinitialiser les filtres"
+              @click="resetFilters"
+              class="q-mt-md"
+            />
+            <q-btn
+              v-else
+              color="primary"
+              label="Découvrir nos produits"
+              to="/products"
+              class="q-mt-md"
+            />
+          </div>
 
-        <q-card-section>
-          <div class="row q-col-gutter-lg">
-            <div class="col-12 col-md-8">
-              <div class="text-h6 q-mb-md">Articles commandés</div>
-              <q-list>
-                <q-item v-for="item in selectedOrder.items" :key="item.id" class="q-pa-md">
-                  <q-item-section avatar>
-                    <q-avatar square size="60px">
-                      <img :src="item.image" :alt="item.name" />
-                    </q-avatar>
-                  </q-item-section>
+          <!-- Orders list -->
+          <div v-else>
+            <!-- Desktop: Table -->
+            <div v-if="$q.screen.gt.sm" class="q-mb-lg">
+              <q-table
+                :rows="ordersStore.items"
+                :columns="columns"
+                row-key="id"
+                flat
+                bordered
+                :loading="ordersStore.loading"
+                :pagination="{ rowsPerPage: 0 }"
+                hide-pagination
+              >
+                <template #body-cell-status="props">
+                  <q-td :props="props">
+                    <q-chip
+                      :color="getStatusColor(props.value)"
+                      text-color="white"
+                      :label="getStatusLabel(props.value)"
+                      size="sm"
+                    />
+                  </q-td>
+                </template>
+
+                <template #body-cell-total="props">
+                  <q-td :props="props">
+                    <span class="text-weight-bold text-primary">
+                      {{ formatPrice(props.value) }}
+                    </span>
+                  </q-td>
+                </template>
+
+                <template #body-cell-actions="props">
+                  <q-td :props="props">
+                    <div class="row q-gutter-xs">
+                      <q-btn
+                        flat
+                        round
+                        dense
+                        icon="visibility"
+                        color="primary"
+                        @click="viewOrder(props.row)"
+                        aria-label="Voir la commande"
+                      />
+                      <q-btn
+                        flat
+                        round
+                        dense
+                        icon="shopping_cart"
+                        color="secondary"
+                        @click="reorder(props.row)"
+                        aria-label="Re-commander"
+                      />
+                      <q-btn
+                        flat
+                        round
+                        dense
+                        icon="download"
+                        color="grey-7"
+                        @click="downloadInvoice(props.row)"
+                        aria-label="Télécharger la facture"
+                      />
+                    </div>
+                  </q-td>
+                </template>
+              </q-table>
+            </div>
+
+            <!-- Mobile: Cards -->
+            <div v-else class="q-mb-lg">
+              <q-list bordered separator>
+                <q-item
+                  v-for="order in ordersStore.items"
+                  :key="order.id"
+                  clickable
+                  v-ripple
+                  @click="viewOrder(order)"
+                >
                   <q-item-section>
-                    <q-item-label>{{ item.name }}</q-item-label>
+                    <q-item-label class="text-weight-medium">
+                      {{ order.number || `#${order.id}` }}
+                    </q-item-label>
                     <q-item-label caption>
-                      Quantité: {{ item.quantity }} • Prix unitaire: {{ formatPrice(item.price) }}
+                      {{ formatDate(order.date) }} • {{ getStatusLabel(order.status) }}
+                    </q-item-label>
+                    <q-item-label caption>
+                      {{ order.itemsCount }} article{{ order.itemsCount > 1 ? 's' : '' }}
                     </q-item-label>
                   </q-item-section>
                   <q-item-section side>
-                    <div class="text-h6">{{ formatPrice(item.price * item.quantity) }}</div>
+                    <q-item-label class="text-weight-bold text-primary">
+                      {{ formatPrice(order.total) }}
+                    </q-item-label>
+                    <q-chip
+                      :color="getStatusColor(order.status)"
+                      text-color="white"
+                      :label="getStatusLabel(order.status)"
+                      size="sm"
+                      class="q-mt-xs"
+                    />
+                  </q-item-section>
+                  <q-item-section side>
+                    <q-icon name="chevron_right" color="grey-5" />
                   </q-item-section>
                 </q-item>
               </q-list>
             </div>
 
-            <div class="col-12 col-md-4">
-              <q-card>
-                <q-card-section>
-                  <div class="text-h6 q-mb-md">Résumé de la commande</div>
-
-                  <div class="q-mb-md">
-                    <div class="row justify-between q-mb-sm">
-                      <span>Sous-total:</span>
-                      <span>{{ formatPrice(selectedOrder.subtotal) }}</span>
-                    </div>
-                    <div class="row justify-between q-mb-sm">
-                      <span>Livraison:</span>
-                      <span>{{ formatPrice(selectedOrder.shipping) }}</span>
-                    </div>
-                    <q-separator class="q-my-sm" />
-                    <div class="row justify-between text-h6">
-                      <span>Total:</span>
-                      <span>{{ formatPrice(selectedOrder.total) }}</span>
-                    </div>
-                  </div>
-
-                  <div class="text-h6 q-mb-md">Adresse de livraison</div>
-                  <div class="text-body2">
-                    {{ selectedOrder.shipping_address.name }}<br />
-                    {{ selectedOrder.shipping_address.address }}<br />
-                    {{ selectedOrder.shipping_address.postal_code }}
-                    {{ selectedOrder.shipping_address.city }}<br />
-                    {{ selectedOrder.shipping_address.country }}
-                  </div>
-                </q-card-section>
-              </q-card>
+            <!-- Bouton Voir Plus -->
+            <div v-if="ordersStore.hasMore" class="text-center q-mt-xl">
+              <q-btn
+                color="primary"
+                outline
+                size="lg"
+                label="Voir plus de commandes"
+                :loading="ordersStore.loading"
+                @click="loadMore"
+                icon="expand_more"
+              />
             </div>
           </div>
-        </q-card-section>
-      </q-card>
-    </q-dialog>
+        </div>
+      </div>
+    </div>
   </q-page>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useOrdersStore } from 'stores/orders'
+import { useCartStore } from 'stores/cart'
+import { Notify } from 'quasar'
+import { debounce } from 'quasar'
 
-// State
-const loading = ref(false)
-const orders = ref([])
-const showOrderDetails = ref(false)
-const selectedOrder = ref(null)
+const router = useRouter()
+const ordersStore = useOrdersStore()
+const cartStore = useCartStore()
 
-// Methods
+// State local pour éviter les mises à jour trop fréquentes
+const localFilters = ref({
+  q: '',
+  status: null,
+  dateFrom: null,
+  dateTo: null,
+})
+
+// Colonnes pour la table desktop
+const columns = [
+  {
+    name: 'number',
+    required: true,
+    label: 'Commande',
+    align: 'left',
+    field: (row) => row.number || `#${row.id}`,
+    sortable: true,
+  },
+  {
+    name: 'date',
+    label: 'Date',
+    align: 'left',
+    field: 'date',
+    format: (val) => formatDate(val),
+    sortable: true,
+  },
+  {
+    name: 'status',
+    label: 'Statut',
+    align: 'center',
+    field: 'status',
+    sortable: true,
+  },
+  {
+    name: 'itemsCount',
+    label: 'Articles',
+    align: 'center',
+    field: 'itemsCount',
+    sortable: true,
+  },
+  {
+    name: 'total',
+    label: 'Total',
+    align: 'right',
+    field: 'total',
+    format: (val) => formatPrice(val),
+    sortable: true,
+  },
+  {
+    name: 'actions',
+    label: 'Actions',
+    align: 'center',
+    field: 'actions',
+  },
+]
+
+// Computed pour les couleurs de statut
+const getStatusColor = (status) => {
+  const colors = {
+    pending: 'grey',
+    paid: 'primary',
+    shipped: 'info',
+    delivered: 'positive',
+    canceled: 'negative',
+  }
+  return colors[status] || 'grey'
+}
+
+const getStatusLabel = (status) => {
+  const labels = {
+    pending: 'En attente',
+    paid: 'Payée',
+    shipped: 'Expédiée',
+    delivered: 'Livrée',
+    canceled: 'Annulée',
+  }
+  return labels[status] || status
+}
+
+// Fonction pour mettre à jour les filtres avec debounce
+const updateFilters = debounce(() => {
+  ordersStore.q = localFilters.value.q
+  ordersStore.status = localFilters.value.status
+  ordersStore.dateFrom = localFilters.value.dateFrom
+  ordersStore.dateTo = localFilters.value.dateTo
+  ordersStore.page = 1
+  ordersStore.fetch()
+}, 300)
+
+// Gestionnaires d'événements
+const onSearchChange = () => {
+  updateFilters()
+}
+
+const onFilterChange = () => {
+  updateFilters()
+}
+
+const applyFilters = () => {
+  updateFilters()
+}
+
+const resetFilters = () => {
+  ordersStore.resetFilters()
+  localFilters.value = {
+    q: '',
+    status: null,
+    dateFrom: null,
+    dateTo: null,
+  }
+  ordersStore.fetch()
+}
+
+const removeFilter = (filterKey) => {
+  ordersStore.removeFilter(filterKey)
+  localFilters.value[filterKey] = filterKey === 'q' ? '' : null
+  ordersStore.fetch()
+}
+
+// Fonction pour charger plus de commandes
+const loadMore = () => {
+  ordersStore.fetchNext()
+}
+
+// Fonction pour voir une commande
+const viewOrder = (order) => {
+  router.push(`/account/orders/${order.id}`)
+}
+
+// Fonction pour re-commander
+const reorder = async (order) => {
+  try {
+    const result = await ordersStore.reorder(order.id)
+    if (result.success) {
+      Notify.create({
+        type: 'positive',
+        message: result.message || 'Commande ajoutée au panier',
+        position: 'top',
+      })
+      // Ouvrir le drawer du panier
+      cartStore.toggleDrawer()
+    } else {
+      Notify.create({
+        type: 'negative',
+        message: result.message,
+        position: 'top',
+      })
+    }
+  } catch {
+    Notify.create({
+      type: 'negative',
+      message: 'Erreur lors de la re-commande',
+      position: 'top',
+    })
+  }
+}
+
+// Fonction pour télécharger la facture
+const downloadInvoice = async (order) => {
+  try {
+    const result = await ordersStore.downloadInvoice(order.id)
+    if (result.success) {
+      Notify.create({
+        type: 'positive',
+        message: result.message || 'Facture téléchargée avec succès',
+        position: 'top',
+      })
+    } else {
+      Notify.create({
+        type: 'negative',
+        message: result.message,
+        position: 'top',
+      })
+    }
+  } catch {
+    Notify.create({
+      type: 'negative',
+      message: 'Erreur lors du téléchargement de la facture',
+      position: 'top',
+    })
+  }
+}
+
+// Fonctions utilitaires
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('fr-FR', {
     year: 'numeric',
@@ -186,104 +550,18 @@ const formatPrice = (price) => {
   }).format(price)
 }
 
-const getStatusColor = (status) => {
-  const colors = {
-    'En attente': 'orange',
-    Confirmée: 'blue',
-    Expédiée: 'purple',
-    Livrée: 'green',
-    Annulée: 'red',
-  }
-  return colors[status] || 'grey'
-}
-
-const viewOrderDetails = (order) => {
-  selectedOrder.value = order
-  showOrderDetails.value = true
-}
-
-const fetchOrders = async () => {
-  loading.value = true
-
-  try {
-    // TODO: Implémenter l'appel API
-    await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulation
-
-    // Données de test
-    orders.value = [
-      {
-        id: 'ORD-001',
-        created_at: '2024-01-15T10:30:00Z',
-        status: 'Livrée',
-        subtotal: 89.98,
-        shipping: 0,
-        total: 89.98,
-        items: [
-          {
-            id: 1,
-            name: "Robe d'été fleurie",
-            price: 49.99,
-            quantity: 1,
-            image: 'https://picsum.photos/200/200?random=1',
-          },
-          {
-            id: 2,
-            name: 'T-shirt coton bio',
-            price: 19.99,
-            quantity: 2,
-            image: 'https://picsum.photos/200/200?random=2',
-          },
-        ],
-        shipping_address: {
-          name: 'John Doe',
-          address: '123 Rue de la Paix',
-          postal_code: '75001',
-          city: 'Paris',
-          country: 'France',
-        },
-      },
-      {
-        id: 'ORD-002',
-        created_at: '2024-01-10T14:20:00Z',
-        status: 'Expédiée',
-        subtotal: 129.99,
-        shipping: 5.99,
-        total: 135.98,
-        items: [
-          {
-            id: 3,
-            name: 'Jean slim taille haute',
-            price: 79.99,
-            quantity: 1,
-            image: 'https://picsum.photos/200/200?random=3',
-          },
-          {
-            id: 4,
-            name: 'Baskets blanches',
-            price: 50.0,
-            quantity: 1,
-            image: 'https://picsum.photos/200/200?random=4',
-          },
-        ],
-        shipping_address: {
-          name: 'John Doe',
-          address: '123 Rue de la Paix',
-          postal_code: '75001',
-          city: 'Paris',
-          country: 'France',
-        },
-      },
-    ]
-  } catch (error) {
-    console.error('Error fetching orders:', error)
-  } finally {
-    loading.value = false
-  }
-}
-
 // Lifecycle
-onMounted(() => {
-  fetchOrders()
+onMounted(async () => {
+  // Synchroniser les filtres locaux avec le store
+  localFilters.value = {
+    q: ordersStore.q,
+    status: ordersStore.status,
+    dateFrom: ordersStore.dateFrom,
+    dateTo: ordersStore.dateTo,
+  }
+
+  // Charger les commandes
+  await ordersStore.fetch()
 })
 </script>
 

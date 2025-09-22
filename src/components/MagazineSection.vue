@@ -1,24 +1,15 @@
 // src/components/MagazineSection.vue
 <template>
-  <div class="magazine-section q-pa-md">
-    <div class="section-header q-mb-md">
-      <h2 class="text-h5 q-mb-none">Magazine / Blog</h2>
-      <q-btn
-        flat
-        color="primary"
-        label="Voir tout"
-        @click="$emit('see-all')"
-      />
+  <div class="magazine-section">
+    <div class="section-header">
+      <h2 class="section-title">MAGAZINE KAMRI</h2>
+      <q-btn flat color="primary" label="Voir tout" @click="$emit('see-all')" class="see-all-btn" />
     </div>
 
     <!-- État de chargement -->
     <template v-if="loading">
       <div class="row no-wrap overflow-auto">
-        <div
-          v-for="n in 4"
-          :key="n"
-          class="col-12 col-sm-6 col-md-3 q-px-sm"
-        >
+        <div v-for="n in 4" :key="n" class="col-12 col-sm-6 col-md-3 q-px-sm">
           <q-card flat bordered class="magazine-skeleton">
             <q-skeleton height="200px" square />
             <q-card-section>
@@ -33,67 +24,83 @@
     <!-- État d'erreur -->
     <div v-else-if="error" class="text-center q-pa-md">
       <div class="text-negative q-mb-md">{{ error }}</div>
-      <q-btn
-        label="Réessayer"
-        color="primary"
-        @click="$emit('retry')"
-      />
+      <q-btn label="Réessayer" color="primary" @click="$emit('retry')" />
     </div>
 
     <!-- État vide -->
     <div v-else-if="!articles?.length" class="text-center q-pa-md">
-      <div class="text-grey-8">
-        Aucun article disponible pour le moment
-      </div>
+      <div class="text-grey-8">Aucun article disponible pour le moment</div>
     </div>
 
     <!-- Articles -->
-    <div v-else class="row no-wrap overflow-auto">
-      <div
-        v-for="article in articles"
-        :key="article.id"
-        class="col-12 col-sm-6 col-md-3 q-px-sm"
-      >
-        <MagazineCard
-          :article="article"
-          @click="$emit('select', article)"
-        />
+    <div v-else class="articles-grid">
+      <div v-for="article in articles" :key="article.id" class="article-card">
+        <MagazineCard :article="article" @click="$emit('select', article)" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import MagazineCard from './MagazineCard.vue';
+import MagazineCard from './MagazineCard.vue'
 
 defineProps({
   articles: {
     type: Array,
-    default: () => []
+    default: () => [],
   },
   loading: {
     type: Boolean,
-    default: false
+    default: false,
   },
   error: {
     type: String,
-    default: ''
-  }
+    default: '',
+  },
 })
 
 defineEmits(['select', 'retry', 'see-all'])
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@use 'src/css/_tokens.scss' as *;
+
 .magazine-section {
-  background: #fff;
-  border-radius: 8px;
+  padding: 1rem 0;
 }
 
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: $dark;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+
+.see-all-btn {
+  font-weight: 600;
+}
+
+.articles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.article-card {
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-4px);
+  }
 }
 
 .magazine-skeleton {

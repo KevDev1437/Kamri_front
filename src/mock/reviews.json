@@ -1,0 +1,151 @@
+{
+  "success": true,
+  "items": [
+    {
+      "id": 1,
+      "user": {
+        "name": "Marie Dubois"
+      },
+      "rating": 5,
+      "comment": "Excellent produit ! La qualité est au rendez-vous et la livraison a été très rapide. Je recommande vivement ce produit à tous ceux qui cherchent de la qualité.",
+      "createdAt": "2024-01-15T10:30:00Z",
+      "verified": true,
+      "photos": [
+        "https://via.placeholder.com/400x300?text=Photo+1",
+        "https://via.placeholder.com/400x300?text=Photo+2"
+      ],
+      "helpfulCount": 12,
+      "reported": false
+    },
+    {
+      "id": 2,
+      "user": {
+        "name": "Jean Martin"
+      },
+      "rating": 4,
+      "comment": "Très bon produit dans l'ensemble. Quelques petits détails à améliorer mais globalement satisfait de mon achat. La livraison était correcte.",
+      "createdAt": "2024-01-12T14:20:00Z",
+      "verified": true,
+      "photos": ["https://via.placeholder.com/400x300?text=Photo+3"],
+      "helpfulCount": 8,
+      "reported": false
+    },
+    {
+      "id": 3,
+      "user": {
+        "name": "Sophie Leroy"
+      },
+      "rating": 5,
+      "comment": "Parfait ! Exactement ce que je cherchais. La qualité est exceptionnelle et le design est très élégant. Je suis ravie de mon achat.",
+      "createdAt": "2024-01-10T09:15:00Z",
+      "verified": true,
+      "photos": [],
+      "helpfulCount": 15,
+      "reported": false
+    },
+    {
+      "id": 4,
+      "user": {
+        "name": "Pierre Moreau"
+      },
+      "rating": 3,
+      "comment": "Produit correct mais pas exceptionnel. La qualité est moyenne pour le prix demandé. Fonctionne mais pourrait être mieux.",
+      "createdAt": "2024-01-08T16:45:00Z",
+      "verified": false,
+      "photos": [],
+      "helpfulCount": 3,
+      "reported": false
+    },
+    {
+      "id": 5,
+      "user": {
+        "name": "Claire Petit"
+      },
+      "rating": 5,
+      "comment": "Superbe produit ! La finition est impeccable et l'utilisation est très intuitive. Je recommande sans hésitation.",
+      "createdAt": "2024-01-05T11:30:00Z",
+      "verified": true,
+      "photos": [
+        "https://via.placeholder.com/400x300?text=Photo+4",
+        "https://via.placeholder.com/400x300?text=Photo+5",
+        "https://via.placeholder.com/400x300?text=Photo+6"
+      ],
+      "helpfulCount": 20,
+      "reported": false
+    },
+    {
+      "id": 6,
+      "user": {
+        "name": "Antoine Rousseau"
+      },
+      "rating": 2,
+      "comment": "Déçu par ce produit. La qualité ne correspond pas à mes attentes et le service client n'a pas été à la hauteur.",
+      "createdAt": "2024-01-03T13:20:00Z",
+      "verified": true,
+      "photos": [],
+      "helpfulCount": 1,
+      "reported": false
+    },
+    {
+      "id": 7,
+      "user": {
+        "name": "Isabelle Blanc"
+      },
+      "rating": 4,
+      "comment": "Bon produit dans l'ensemble. Quelques améliorations possibles mais globalement satisfaite. La livraison était rapide.",
+      "createdAt": "2024-01-01T08:00:00Z",
+      "verified": true,
+      "photos": ["https://via.placeholder.com/400x300?text=Photo+7"],
+      "helpfulCount": 6,
+      "reported": false
+    },
+    {
+      "id": 8,
+      "user": {
+        "name": "Thomas Durand"
+      },
+      "rating": 5,
+      "comment": "Excellent ! Très satisfait de mon achat. La qualité est au top et le rapport qualité-prix est imbattable.",
+      "createdAt": "2023-12-28T15:30:00Z",
+      "verified": true,
+      "photos": [],
+      "helpfulCount": 18,
+      "reported": false
+    },
+    {
+      "id": 9,
+      "user": {
+        "name": "Nathalie Simon"
+      },
+      "rating": 3,
+      "comment": "Produit correct mais pas exceptionnel. Quelques défauts mineurs mais fonctionne correctement.",
+      "createdAt": "2023-12-25T12:15:00Z",
+      "verified": false,
+      "photos": [],
+      "helpfulCount": 2,
+      "reported": false
+    },
+    {
+      "id": 10,
+      "user": {
+        "name": "Michel Bernard"
+      },
+      "rating": 4,
+      "comment": "Très bon produit ! La qualité est là et l'utilisation est simple. Je recommande ce produit.",
+      "createdAt": "2023-12-22T10:45:00Z",
+      "verified": true,
+      "photos": ["https://via.placeholder.com/400x300?text=Photo+8"],
+      "helpfulCount": 9,
+      "reported": false
+    }
+  ],
+  "total": 10,
+  "average": 4.1,
+  "counts": {
+    "5": 5,
+    "4": 3,
+    "3": 2,
+    "2": 1,
+    "1": 0
+  }
+}

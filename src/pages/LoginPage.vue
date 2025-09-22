@@ -42,7 +42,13 @@
 
             <div class="row items-center justify-between">
               <q-checkbox v-model="form.remember" label="Se souvenir de moi" />
-              <q-btn flat color="primary" label="Mot de passe oublié ?" no-caps />
+              <q-btn
+                flat
+                color="primary"
+                label="Mot de passe oublié ?"
+                to="/forgot-password"
+                no-caps
+              />
             </div>
 
             <q-btn
@@ -55,7 +61,13 @@
             />
 
             <div class="text-center q-mt-md">
-              <q-btn flat color="primary" label="Mot de passe oublié ?" no-caps />
+              <q-btn
+                flat
+                color="primary"
+                label="Mot de passe oublié ?"
+                to="/forgot-password"
+                no-caps
+              />
             </div>
 
             <q-separator class="q-my-lg" />

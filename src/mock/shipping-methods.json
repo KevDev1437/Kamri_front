@@ -1,0 +1,26 @@
+{
+  "success": true,
+  "methods": [
+    {
+      "code": "standard",
+      "label": "Livraison Standard",
+      "eta": "2-3 jours ouvrables",
+      "price": 4.99,
+      "description": "Livraison standard avec suivi"
+    },
+    {
+      "code": "express",
+      "label": "Livraison Express",
+      "eta": "1 jour ouvrable",
+      "price": 9.99,
+      "description": "Livraison express avec suivi prioritaire"
+    },
+    {
+      "code": "premium",
+      "label": "Livraison Premium",
+      "eta": "Même jour",
+      "price": 19.99,
+      "description": "Livraison le jour même (disponible uniquement en Belgique)"
+    }
+  ]
+}

@@ -1,77 +1,73 @@
 // src/components/GamificationControls.vue
 <template>
-  <div class="gamification-container q-pa-md q-gutter-lg row wrap justify-around">
+  <div class="gamification-container row q-gutter-lg justify-center">
     <!-- Points Card -->
-    <q-card flat bordered class="gamification-card q-pa-md">
-      <q-card-section class="text-center">
-        <q-icon name="emoji_events" size="2rem" class="q-mb-sm text-warning" />
-        <template v-if="loading">
-          <q-skeleton type="text" class="text-subtitle1" />
-        </template>
-        <template v-else-if="error">
-          <div class="text-negative">
-            <q-icon name="error" size="sm" />
-            <span class="q-ml-xs">Erreur de chargement</span>
-          </div>
-          <q-btn flat label="Réessayer" color="primary" @click="loadPoints" class="q-mt-sm" />
-        </template>
-        <template v-else>
-          <div class="text-subtitle1 font-medium">
-            Points : {{ points }}
-          </div>
-          <div v-if="nextRewardAt" class="text-caption q-mt-sm">
-            {{ pointsToNextReward }} points avant la prochaine récompense
-          </div>
-        </template>
-      </q-card-section>
-    </q-card>
+    <div class="gamification-tile">
+      <div class="tile-content">
+        <q-icon name="emoji_events" size="3rem" class="tile-icon" />
+        <div class="tile-text">
+          <template v-if="loading">
+            <q-skeleton type="text" class="text-subtitle1" />
+          </template>
+          <template v-else-if="error">
+            <div class="text-negative">
+              <q-icon name="error" size="sm" />
+              <span class="q-ml-xs">Erreur</span>
+            </div>
+            <q-btn flat label="Réessayer" color="primary" @click="loadPoints" class="q-mt-sm" />
+          </template>
+          <template v-else>
+            <div class="tile-title">Points</div>
+            <div class="tile-value">{{ points }}</div>
+            <div v-if="nextRewardAt" class="tile-subtitle">
+              {{ pointsToNextReward }} points avant récompense
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
 
     <!-- Community Card -->
-    <q-card flat bordered class="gamification-card q-pa-md">
-      <q-card-section class="text-center">
-        <q-icon name="people" size="2rem" class="q-mb-sm text-info" />
-        <div class="text-subtitle1 font-medium">Mur Communautaire</div>
-        <div v-if="unreadPosts" class="text-caption q-mt-sm">
-          {{ unreadPosts }} nouvelles publications
+    <div class="gamification-tile">
+      <div class="tile-content">
+        <q-icon name="people" size="3rem" class="tile-icon" />
+        <div class="tile-text">
+          <div class="tile-title">Communauté</div>
+          <div class="tile-value">Mur</div>
+          <div v-if="unreadPosts" class="tile-subtitle">
+            {{ unreadPosts }} nouvelles publications
+          </div>
         </div>
-      </q-card-section>
-      <q-card-actions align="center">
-        <q-btn
-          flat
-          label="Voir"
-          :loading="navigatingToCommunity"
-          @click="openCommunity"
-        />
-      </q-card-actions>
-    </q-card>
+      </div>
+      <q-btn
+        flat
+        label="Voir"
+        :loading="navigatingToCommunity"
+        @click="openCommunity"
+        class="tile-action"
+      />
+    </div>
 
     <!-- Daily Challenges Card -->
-    <q-card flat bordered class="gamification-card q-pa-md">
-      <q-card-section class="text-center">
-        <q-icon name="track_changes" size="2rem" class="q-mb-sm text-primary" />
-        <div class="text-subtitle1 font-medium">Défis du jour</div>
-        <template v-if="loading">
-          <q-skeleton type="text" class="text-caption q-mt-sm" />
-        </template>
-        <template v-else-if="error">
-          <div class="text-negative text-caption">
-            Impossible de charger les défis
-          </div>
-        </template>
-        <template v-else>
-          <div class="text-caption q-mt-sm">
-            {{ completedChallenges }}/{{ totalChallenges }} défis complétés
-          </div>
-        </template>
-      </q-card-section>
-      <q-card-actions align="center">
-        <q-btn
-          flat
-          label="Voir les défis"
-          @click="$emit('view-challenges')"
-        />
-      </q-card-actions>
-    </q-card>
+    <div class="gamification-tile">
+      <div class="tile-content">
+        <q-icon name="track_changes" size="3rem" class="tile-icon" />
+        <div class="tile-text">
+          <div class="tile-title">Défis</div>
+          <template v-if="loading">
+            <q-skeleton type="text" class="text-caption q-mt-sm" />
+          </template>
+          <template v-else-if="error">
+            <div class="text-negative text-caption">Impossible de charger</div>
+          </template>
+          <template v-else>
+            <div class="tile-value">{{ completedChallenges }}/{{ totalChallenges }}</div>
+            <div class="tile-subtitle">défis complétés</div>
+          </template>
+        </div>
+      </div>
+      <q-btn flat label="Voir" @click="$emit('view-challenges')" class="tile-action" />
+    </div>
   </div>
 </template>
 
@@ -96,12 +92,12 @@ const navigatingToCommunity = ref(false)
 defineProps({
   includeUnreadPosts: {
     type: Boolean,
-    default: true
+    default: true,
   },
   includeChallenges: {
     type: Boolean,
-    default: true
-  }
+    default: true,
+  },
 })
 
 // Events
@@ -162,27 +158,74 @@ async function openCommunity() {
 
 // Lifecycle
 onMounted(async () => {
-  await Promise.all([
-    loadPoints(),
-    loadChallenges(),
-    loadUnreadPosts()
-  ])
+  await Promise.all([loadPoints(), loadChallenges(), loadUnreadPosts()])
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@use 'src/css/_tokens.scss' as *;
+
 .gamification-container {
-  background: #fff;
-  border-radius: 8px;
+  padding: 1rem 0;
 }
 
-.gamification-card {
+.gamification-tile {
+  @extend %grad-card;
   min-width: 200px;
-  transition: transform 0.2s ease;
+  max-width: 280px;
+  border-radius: $radius-lg;
+  padding: 1.5rem;
+  box-shadow: $shadow-1;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    transform: rotate(-0.5deg) translateY(-2px);
+    box-shadow: $shadow-2;
+  }
 }
 
-.gamification-card:hover {
-  transform: translateY(-2px);
+.tile-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.tile-icon {
+  color: $primary;
+  margin-bottom: 1rem;
+}
+
+.tile-text {
+  width: 100%;
+}
+
+.tile-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: $dark;
+  margin-bottom: 0.5rem;
+}
+
+.tile-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: $primary;
+  margin-bottom: 0.25rem;
+}
+
+.tile-subtitle {
+  font-size: 0.875rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.tile-action {
+  width: 100%;
+  margin-top: auto;
 }
 
 /* Loading state styles */

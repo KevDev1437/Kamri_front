@@ -1,0 +1,22 @@
+[
+  { "city": "Bruxelles", "postalCode": "1000" },
+  { "city": "Anvers", "postalCode": "2000" },
+  { "city": "Gand", "postalCode": "9000" },
+  { "city": "Charleroi", "postalCode": "6000" },
+  { "city": "Liège", "postalCode": "4000" },
+  { "city": "Bruges", "postalCode": "8000" },
+  { "city": "Namur", "postalCode": "5000" },
+  { "city": "Louvain", "postalCode": "3000" },
+  { "city": "Mons", "postalCode": "7000" },
+  { "city": "Alost", "postalCode": "9300" },
+  { "city": "Malines", "postalCode": "2800" },
+  { "city": "La Louvière", "postalCode": "7100" },
+  { "city": "Courtrai", "postalCode": "8500" },
+  { "city": "Hasselt", "postalCode": "3500" },
+  { "city": "Saint-Nicolas", "postalCode": "9100" },
+  { "city": "Ostende", "postalCode": "8400" },
+  { "city": "Tournai", "postalCode": "7500" },
+  { "city": "Genk", "postalCode": "3600" },
+  { "city": "Seraing", "postalCode": "4100" },
+  { "city": "Roulers", "postalCode": "8800" }
+]

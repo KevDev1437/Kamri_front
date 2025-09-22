@@ -1,30 +1,73 @@
 <!-- src/components/HeaderBar.vue -->
 <template>
   <div>
-    <!-- Top banner for promotions -->
-    <div v-if="showPromoBanner" class="bg-orange-2 text-dark text-center q-py-sm relative">
-      <span>🎉 Livraison gratuite dès 35€ d'achat ! 🚚</span>
-      <q-btn
-        flat
-        round
-        dense
-        class="absolute-right"
-        icon="close"
-        @click="showPromoBanner = false"
-      />
+    <!-- Top banner for promotions Style Temu -->
+    <div v-if="showPromoBanner" class="temu-promo-banner">
+      <div class="temu-promo-content">
+        <span class="temu-promo-text"> 🎉 Livraison gratuite dès 35€ d'achat ! 🚚 </span>
+        <q-btn
+          flat
+          round
+          dense
+          class="temu-promo-close"
+          icon="close"
+          size="sm"
+          @click="showPromoBanner = false"
+        />
+      </div>
     </div>
 
+    <!-- Bandeau email non vérifié -->
+    <q-banner
+      v-if="authStore.isAuthenticated && !authStore.user?.email_verified_at && !bannerDismissed"
+      class="bg-warning text-dark"
+      dense
+    >
+      <template #avatar>
+        <q-icon name="email" color="dark" />
+      </template>
+      <div class="text-body2">
+        Votre adresse email n'est pas vérifiée.
+        <q-btn
+          flat
+          dense
+          label="Renvoyer l'email"
+          @click="resendVerification"
+          :loading="verificationLoading"
+          class="q-ml-sm"
+        />
+        <q-btn
+          flat
+          dense
+          label="Actualiser"
+          @click="checkVerification"
+          :loading="checkLoading"
+          class="q-ml-xs"
+        />
+      </div>
+      <template #action>
+        <q-btn
+          flat
+          round
+          dense
+          icon="close"
+          @click="dismissBanner"
+          aria-label="Fermer le bandeau"
+        />
+      </template>
+    </q-banner>
+
     <!-- Main toolbar -->
-    <q-toolbar class="bg-white text-primary q-px-md q-px-lg-xl shadow-2">
+    <q-toolbar class="kamri-main-toolbar">
       <!-- Drawer Toggle for Mobile Only -->
       <q-btn v-if="$q.screen.lt.sm" flat round dense icon="menu" @click="$emit('toggle-drawer')" />
 
       <!-- Logo -->
-      <router-link to="/" class="text-primary no-underline logo-container">
-        <q-avatar size="32px" class="q-mr-sm">
+      <router-link to="/" class="kamri-logo-link">
+        <q-avatar size="40px" class="q-mr-sm">
           <img src="/images/logo.png" alt="KAMRI" />
         </q-avatar>
-        <span class="text-h6 font-weight-bold text-primary">KAMRI</span>
+        <span class="kamri-logo-text">KAMRI</span>
       </router-link>
 
       <!-- Categories Menu -->
@@ -32,20 +75,21 @@
         flat
         no-caps
         dense
-        class="q-ml-md categories-menu desktop-only"
+        class="kamri-categories-menu desktop-only"
         label="Catégories"
-        content-class="categories-dropdown"
+        content-class="kamri-categories-dropdown"
       >
-        <div class="row no-wrap categories-container">
+        <div class="kamri-categories-container">
           <!-- Liste des catégories principales -->
-          <q-list class="categories-list" dense>
+          <q-list class="kamri-categories-list" dense>
             <q-item
               v-for="category in categories"
               :key="category.id"
               clickable
               v-ripple
-              :class="{ 'selected-category': selectedCategory === category }"
+              :class="{ 'kamri-selected-category': selectedCategory === category }"
               @mouseover="selectedCategory = category"
+              @click="navigateToCategory(category)"
             >
               <q-item-section>
                 <q-item-label>{{ category.name }}</q-item-label>
@@ -57,7 +101,7 @@
           </q-list>
 
           <!-- Sous-catégories -->
-          <div class="subcategories-container" v-if="selectedCategory">
+          <div class="kamri-subcategories-container" v-if="selectedCategory">
             <div class="row q-col-gutter-md q-pa-md">
               <div v-for="section in selectedCategory.sections" :key="section.id" class="col-4">
                 <div class="text-weight-bold q-mb-sm">{{ section.name }}</div>
@@ -68,7 +112,7 @@
                     clickable
                     v-ripple
                     :to="{ name: 'category', params: { id: subcat.id } }"
-                    class="subcategory-item"
+                    class="kamri-subcategory-item"
                   >
                     <q-item-section>{{ subcat.name }}</q-item-section>
                   </q-item>
@@ -80,14 +124,14 @@
       </q-btn-dropdown>
 
       <!-- Barre de recherche qui occupe tout l'espace -->
-      <div class="search-container">
+      <div class="kamri-search-container">
         <SearchBar />
       </div>
 
       <!-- Action Icons -->
-      <div class="header-actions">
+      <div class="kamri-header-actions">
         <!-- User Menu -->
-        <q-btn-dropdown flat dense no-caps class="user-menu" v-if="$q.screen.gt.xs">
+        <q-btn-dropdown flat dense no-caps class="kamri-user-menu" v-if="$q.screen.gt.xs">
           <template v-slot:label>
             <div class="row items-center no-wrap">
               <q-icon name="person" />
@@ -135,18 +179,44 @@
           </template>
         </q-btn>
 
+        <!-- Wishlist -->
+        <q-btn
+          flat
+          round
+          dense
+          class="kamri-wishlist-btn"
+          to="/account/wishlist"
+          aria-label="Aller à ma wishlist"
+        >
+          <template v-slot:default>
+            <q-icon name="favorite" />
+            <q-badge v-if="wishlistStore.count > 0" color="red" floating rounded>{{
+              wishlistStore.count
+            }}</q-badge>
+          </template>
+        </q-btn>
+
         <!-- Shopping Cart -->
-        <q-btn flat round dense class="cart-btn">
+        <q-btn
+          flat
+          round
+          dense
+          class="kamri-cart-btn"
+          @click="cartStore.open()"
+          aria-label="Ouvrir le panier"
+        >
           <template v-slot:default>
             <q-icon name="shopping_cart" />
-            <q-badge color="red" floating rounded>{{ cartItemsCount }}</q-badge>
+            <q-badge v-if="cartStore.count > 0" color="red" floating rounded>{{
+              cartStore.count
+            }}</q-badge>
           </template>
         </q-btn>
       </div>
     </q-toolbar>
 
     <!-- Navigation bar (desktop only) -->
-    <q-toolbar v-if="$q.screen.gt.sm" class="bg-grey-2 text-dark q-px-lg desktop-only">
+    <q-toolbar v-if="$q.screen.gt.sm" class="kamri-nav-toolbar desktop-only">
       <div class="row full-width justify-between">
         <div class="row q-gutter-md">
           <q-btn flat no-caps dense label="Nouveautés" />
@@ -167,13 +237,22 @@
 import SearchBar from 'components/SearchBar.vue'
 import { useQuasar } from 'quasar'
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from 'stores/auth'
+import { useCartStore } from 'stores/cart'
+import { useWishlistStore } from 'stores/wishlist'
 
 const $q = useQuasar()
+const router = useRouter()
 const showPromoBanner = ref(true)
 const favoritesCount = ref(0)
-const cartItemsCount = ref(0)
 const selectedCategory = ref(null)
+const authStore = useAuthStore()
+const cartStore = useCartStore()
+const wishlistStore = useWishlistStore()
+const verificationLoading = ref(false)
+const checkLoading = ref(false)
+const bannerDismissed = ref(false)
 
 // Cette structure sera remplacée par les données du backend
 const categories = ref([
@@ -250,16 +329,83 @@ const loadCategories = async () => {
   }
 }
 
-const authStore = useAuthStore()
-
 const logout = async () => {
   await authStore.logout()
   // Rediriger vers la page d'accueil après déconnexion
   window.location.href = '/'
 }
 
+function navigateToCategory(category) {
+  router.push({
+    path: '/products',
+    query: { cat: category.value || category.name.toLowerCase() },
+  })
+}
+
+async function resendVerification() {
+  verificationLoading.value = true
+  try {
+    const result = await authStore.resendVerification()
+    if (result.success) {
+      $q.notify({
+        type: 'positive',
+        message: result.message || 'Email de vérification envoyé',
+        position: 'top',
+      })
+    } else {
+      $q.notify({
+        type: 'negative',
+        message: result.message,
+        position: 'top',
+      })
+    }
+  } catch {
+    $q.notify({
+      type: 'negative',
+      message: "Erreur lors de l'envoi de l'email",
+      position: 'top',
+    })
+  } finally {
+    verificationLoading.value = false
+  }
+}
+
+async function checkVerification() {
+  checkLoading.value = true
+  try {
+    const result = await authStore.checkVerification()
+    if (result.success && result.user?.email_verified_at) {
+      $q.notify({
+        type: 'positive',
+        message: 'Email vérifié avec succès !',
+        position: 'top',
+      })
+    } else {
+      $q.notify({
+        type: 'info',
+        message: 'Email pas encore vérifié',
+        position: 'top',
+      })
+    }
+  } catch {
+    $q.notify({
+      type: 'negative',
+      message: 'Erreur lors de la vérification',
+      position: 'top',
+    })
+  } finally {
+    checkLoading.value = false
+  }
+}
+
+function dismissBanner() {
+  bannerDismissed.value = true
+}
+
 onMounted(() => {
   loadCategories()
+  cartStore.load()
+  wishlistStore.restore()
   // Sélectionner la première catégorie par défaut
   if (categories.value.length > 0) {
     selectedCategory.value = categories.value[0]
@@ -268,36 +414,234 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.logo-container {
+// === BANNER PROMO STYLE TEMU ===
+.temu-promo-banner {
+  background: linear-gradient(90deg, #ff6b6b, #ffa500, #ff6b6b);
+  background-size: 200% 100%;
+  animation: temu-gradient-shift 3s ease-in-out infinite;
+  color: white;
+  text-align: center;
+  padding: var(--kamri-space-sm) 0;
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes temu-gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.temu-promo-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--kamri-space-md);
+}
+
+.temu-promo-text {
+  font-weight: 700;
+  font-size: var(--kamri-font-size-sm);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  animation: temu-pulse 2s ease-in-out infinite;
+}
+
+@keyframes temu-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.temu-promo-close {
+  position: absolute;
+  right: var(--kamri-space-md);
+  color: white;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+  }
+}
+
+// === TOOLBAR PRINCIPAL ===
+.kamri-main-toolbar {
+  background: var(--kamri-bg-primary) !important;
+  color: var(--kamri-gray-800) !important;
+  padding: var(--kamri-space-md) var(--kamri-space-lg);
+  box-shadow: var(--kamri-shadow-sm);
+  border-bottom: 1px solid var(--kamri-gray-200);
+  min-height: 64px;
+
+  .q-btn {
+    color: var(--kamri-gray-800) !important;
+
+    &:hover {
+      background: var(--kamri-gray-100) !important;
+      color: var(--kamri-primary) !important;
+    }
+  }
+}
+
+// === LOGO ===
+.kamri-logo-link {
   display: flex;
   align-items: center;
   text-decoration: none;
   flex-shrink: 0;
+  transition: var(--kamri-transition);
+
+  &:hover {
+    transform: scale(1.05);
+  }
 }
 
-.search-container {
+.kamri-logo-text {
+  font-size: var(--kamri-font-size-xl);
+  font-weight: 700;
+  color: var(--kamri-primary);
+  letter-spacing: -0.025em;
+}
+
+// === RECHERCHE ===
+.kamri-search-container {
   flex: 1;
   display: flex;
   align-items: center;
-  margin: 0 16px;
+  margin: 0 var(--kamri-space-lg);
   position: relative;
+  max-width: 600px;
 }
 
-.camera-btn {
-  position: absolute;
-  right: 8px;
-}
-
-.header-actions {
+// === ACTIONS HEADER ===
+.kamri-header-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--kamri-space-sm);
 }
 
-.user-menu {
-  min-width: 120px;
+.kamri-user-menu {
+  min-width: 140px;
+  border-radius: var(--kamri-radius);
+  transition: var(--kamri-transition);
+
+  &:hover {
+    background: var(--kamri-gray-100);
+  }
 }
 
+.kamri-cart-btn {
+  position: relative;
+  border-radius: var(--kamri-radius);
+  transition: var(--kamri-transition);
+
+  &:hover {
+    background: var(--kamri-gray-100);
+    transform: scale(1.1);
+  }
+}
+
+// === NAVIGATION ===
+.kamri-nav-toolbar {
+  background: var(--kamri-gray-50) !important;
+  color: var(--kamri-gray-700) !important;
+  padding: var(--kamri-space-sm) var(--kamri-space-lg);
+  border-bottom: 1px solid var(--kamri-gray-200);
+  min-height: 48px;
+
+  .q-btn {
+    color: var(--kamri-gray-700) !important;
+    border-radius: var(--kamri-radius);
+    transition: var(--kamri-transition);
+
+    &:hover {
+      background: var(--kamri-primary) !important;
+      color: white !important;
+    }
+  }
+}
+
+// === MENU CATÉGORIES ===
+.kamri-categories-menu {
+  margin-left: var(--kamri-space-lg);
+  border-radius: var(--kamri-radius);
+  transition: var(--kamri-transition);
+
+  &:hover {
+    background: var(--kamri-gray-100);
+  }
+}
+
+.kamri-categories-dropdown {
+  width: 900px;
+  max-height: 80vh;
+  overflow: hidden;
+  border-radius: var(--kamri-radius-lg);
+  box-shadow: var(--kamri-shadow-xl);
+  border: 1px solid var(--kamri-gray-200);
+}
+
+.kamri-categories-container {
+  display: flex;
+  height: 400px;
+}
+
+.kamri-categories-list {
+  width: 250px;
+  border-right: 1px solid var(--kamri-gray-200);
+  background: var(--kamri-gray-50);
+  overflow-y: auto;
+
+  .q-item {
+    border-radius: 0;
+    transition: var(--kamri-transition);
+
+    &:hover {
+      background: var(--kamri-gray-100);
+    }
+  }
+}
+
+.kamri-selected-category {
+  background: var(--kamri-bg-primary) !important;
+  color: var(--kamri-primary) !important;
+  font-weight: 600;
+  border-right: 3px solid var(--kamri-primary);
+}
+
+.kamri-subcategories-container {
+  flex: 1;
+  background: var(--kamri-bg-primary);
+  overflow-y: auto;
+  padding: var(--kamri-space-lg);
+}
+
+.kamri-subcategory-item {
+  padding: var(--kamri-space-xs) 0;
+  min-height: 36px;
+  border-radius: var(--kamri-radius-sm);
+  transition: var(--kamri-transition);
+
+  &:hover {
+    background: var(--kamri-gray-100);
+    color: var(--kamri-primary);
+    padding-left: var(--kamri-space-sm);
+  }
+}
+
+// === RESPONSIVE ===
 .desktop-only {
   display: none;
 }
@@ -308,55 +652,27 @@ onMounted(() => {
   }
 }
 
-/* Animation pour le banner promo */
-.promo-banner-enter-active,
-.promo-banner-leave-active {
-  transition: all 0.3s ease;
-}
-
-.promo-banner-enter-from,
-.promo-banner-leave-to {
-  transform: translateY(-100%);
-  opacity: 0;
-}
-
-/* Styles pour le menu des catégories */
-.categories-dropdown {
-  width: 900px;
-  max-height: 80vh;
-  overflow: hidden;
-}
-
-.categories-container {
-  display: flex;
-  height: 400px;
-}
-
-.categories-list {
-  width: 250px;
-  border-right: 1px solid #e0e0e0;
-  background: #f5f5f5;
-  overflow-y: auto;
-}
-
-.selected-category {
-  background: white !important;
-  color: var(--q-primary);
-  font-weight: 500;
-}
-
-.subcategories-container {
-  flex: 1;
-  background: white;
-  overflow-y: auto;
-}
-
-.subcategory-item {
-  padding: 4px 0;
-  min-height: 32px;
-
-  &:hover {
-    color: var(--q-primary);
+// === ANIMATIONS ===
+@keyframes kamri-animate-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// === OVERRIDES QUASAR ===
+.q-toolbar {
+  .q-btn {
+    border-radius: var(--kamri-radius);
+  }
+}
+
+.q-badge {
+  font-size: 10px;
+  font-weight: 600;
 }
 </style>

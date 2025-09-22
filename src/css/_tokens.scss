@@ -1,0 +1,49 @@
+// Design Tokens pour KAMRI
+// Palette de couleurs moderne et premium
+
+// === COULEURS PRINCIPALES ===
+$primary: #6366f1;
+$secondary: #f97316;
+$accent: #10b981;
+$info: #06b6d4;
+$warning: #f59e0b;
+$negative: #ef4444;
+$dark: #0b1220;
+$bg-soft: #f7fafc;
+
+// === RAYONS DE BORDURE ===
+$radius-sm: 10px;
+$radius-md: 14px;
+$radius-lg: 20px;
+
+// === OMBRES ===
+$shadow-1: 0 2px 10px rgba(0, 0, 0, 0.06);
+$shadow-2: 0 8px 24px rgba(0, 0, 0, 0.1);
+
+// === GRADIENTS ===
+%grad-hero {
+  background: linear-gradient(135deg, #7c3aed 0%, #6366f1 45%, #06b6d4 100%);
+}
+
+%grad-dark {
+  background: linear-gradient(180deg, #0b1220 0%, #1f2937 100%);
+}
+
+%grad-card {
+  background: linear-gradient(180deg, #ffffff 0%, #f8faff 100%);
+}
+
+// === ANIMATIONS ===
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.float-slow {
+  animation: float 6s ease-in-out infinite;
+}

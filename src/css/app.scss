@@ -1,1 +1,479 @@
-// app global css in SCSS form
+@use 'src/css/_tokens.scss' as *;
+
+// Design System Moderne pour KAMRI
+// Variables et styles globaux
+
+// === VARIABLES DE COULEURS ===
+:root {
+  // Couleurs primaires
+  --kamri-primary: #{$primary};
+  --kamri-primary-dark: #4f46e5;
+  --kamri-primary-light: #a5b4fc;
+
+  // Couleurs secondaires
+  --kamri-secondary: #{$secondary};
+  --kamri-secondary-dark: #d97706;
+  --kamri-secondary-light: #fbbf24;
+
+  // Couleurs neutres
+  --kamri-gray-50: #f9fafb;
+  --kamri-gray-100: #f3f4f6;
+  --kamri-gray-200: #e5e7eb;
+  --kamri-gray-300: #d1d5db;
+  --kamri-gray-400: #9ca3af;
+  --kamri-gray-500: #6b7280;
+  --kamri-gray-600: #4b5563;
+  --kamri-gray-700: #374151;
+  --kamri-gray-800: #1f2937;
+  --kamri-gray-900: #{$dark};
+
+  // Couleurs d'état
+  --kamri-success: #{$accent};
+  --kamri-warning: #{$warning};
+  --kamri-error: #{$negative};
+  --kamri-info: #{$info};
+
+  // Couleurs de fond
+  --kamri-bg-primary: #ffffff;
+  --kamri-bg-secondary: #{$bg-soft};
+  --kamri-bg-tertiary: #f1f5f9;
+
+  // Ombres
+  --kamri-shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --kamri-shadow: #{$shadow-1};
+  --kamri-shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --kamri-shadow-lg: #{$shadow-2};
+  --kamri-shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+
+  // Rayons de bordure
+  --kamri-radius-sm: #{$radius-sm};
+  --kamri-radius: 0.5rem;
+  --kamri-radius-md: #{$radius-md};
+  --kamri-radius-lg: #{$radius-lg};
+  --kamri-radius-xl: 1.5rem;
+
+  // Espacements
+  --kamri-space-xs: 0.25rem;
+  --kamri-space-sm: 0.5rem;
+  --kamri-space-md: 1rem;
+  --kamri-space-lg: 1.5rem;
+  --kamri-space-xl: 2rem;
+  --kamri-space-2xl: 3rem;
+
+  // Typographie
+  --kamri-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --kamri-font-size-xs: 0.75rem;
+  --kamri-font-size-sm: 0.875rem;
+  --kamri-font-size-base: 1rem;
+  --kamri-font-size-lg: 1.125rem;
+  --kamri-font-size-xl: 1.25rem;
+  --kamri-font-size-2xl: 1.5rem;
+  --kamri-font-size-3xl: 1.875rem;
+  --kamri-font-size-4xl: 2.25rem;
+
+  // Transitions
+  --kamri-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --kamri-transition-slow: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// === STYLES GLOBAUX ===
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--kamri-font-family);
+  background: $bg-soft;
+  color: var(--kamri-gray-800);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// === CLASSES UTILITAIRES ===
+.container-1200 {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.kamri-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--kamri-space-md);
+
+  @media (min-width: 768px) {
+    padding: 0 var(--kamri-space-lg);
+  }
+
+  @media (min-width: 1024px) {
+    padding: 0 var(--kamri-space-xl);
+  }
+}
+
+.kamri-section {
+  padding: var(--kamri-space-2xl) 0;
+}
+
+// === SECTIONS UTILITAIRES ===
+.section {
+  padding: 48px 0;
+}
+
+.section--alt {
+  background: #f3f4f6;
+}
+
+.section--dark {
+  @extend %grad-dark;
+  color: white;
+}
+
+.kamri-card {
+  background: var(--kamri-bg-primary);
+  border-radius: var(--kamri-radius-lg);
+  box-shadow: var(--kamri-shadow);
+  transition: var(--kamri-transition);
+  overflow: hidden;
+
+  &:hover {
+    box-shadow: var(--kamri-shadow-lg);
+    transform: translateY(-2px);
+  }
+}
+
+.kamri-card-elevated {
+  box-shadow: var(--kamri-shadow-lg);
+
+  &:hover {
+    box-shadow: var(--kamri-shadow-xl);
+    transform: translateY(-4px);
+  }
+}
+
+.kamri-gradient-primary {
+  background: linear-gradient(135deg, var(--kamri-primary) 0%, var(--kamri-primary-dark) 100%);
+}
+
+.kamri-gradient-secondary {
+  background: linear-gradient(135deg, var(--kamri-secondary) 0%, var(--kamri-secondary-dark) 100%);
+}
+
+.kamri-gradient-hero {
+  background: linear-gradient(135deg, var(--kamri-primary) 0%, var(--kamri-secondary) 100%);
+}
+
+// === ANIMATIONS ===
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// Animation float pour les éléments décoratifs
+.float-slow {
+  animation: float 6s ease-in-out infinite;
+}
+
+.kamri-animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.kamri-animate-fade-in-left {
+  animation: fadeInLeft 0.6s ease-out;
+}
+
+.kamri-animate-fade-in-right {
+  animation: fadeInRight 0.6s ease-out;
+}
+
+.kamri-animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+// === RESPONSIVE UTILITIES ===
+.kamri-responsive-grid {
+  display: grid;
+  gap: var(--kamri-space-lg);
+  grid-template-columns: 1fr;
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (min-width: 1280px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.kamri-responsive-grid-2 {
+  display: grid;
+  gap: var(--kamri-space-lg);
+  grid-template-columns: 1fr;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.kamri-responsive-grid-3 {
+  display: grid;
+  gap: var(--kamri-space-lg);
+  grid-template-columns: 1fr;
+
+  @media (min-width: 640px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+// === BOUTONS MODERNES ===
+.kamri-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--kamri-space-sm) var(--kamri-space-lg);
+  border-radius: var(--kamri-radius);
+  font-weight: 500;
+  text-decoration: none;
+  transition: var(--kamri-transition);
+  cursor: pointer;
+  border: none;
+  font-size: var(--kamri-font-size-base);
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.kamri-btn-primary {
+  background: var(--kamri-gradient-primary);
+  color: white;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: var(--kamri-shadow-md);
+  }
+}
+
+.kamri-btn-secondary {
+  background: var(--kamri-bg-primary);
+  color: var(--kamri-gray-700);
+  border: 1px solid var(--kamri-gray-300);
+
+  &:hover:not(:disabled) {
+    background: var(--kamri-gray-50);
+    border-color: var(--kamri-gray-400);
+  }
+}
+
+.kamri-btn-ghost {
+  background: transparent;
+  color: var(--kamri-primary);
+
+  &:hover:not(:disabled) {
+    background: var(--kamri-primary);
+    color: white;
+  }
+}
+
+// === TYPOGRAPHIE ===
+.kamri-heading-1 {
+  font-size: var(--kamri-font-size-4xl);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--kamri-gray-900);
+
+  @media (min-width: 768px) {
+    font-size: 3rem;
+  }
+}
+
+.kamri-heading-2 {
+  font-size: var(--kamri-font-size-3xl);
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--kamri-gray-900);
+}
+
+.kamri-heading-3 {
+  font-size: var(--kamri-font-size-2xl);
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--kamri-gray-800);
+}
+
+.kamri-text-large {
+  font-size: var(--kamri-font-size-lg);
+  color: var(--kamri-gray-600);
+}
+
+.kamri-text-muted {
+  color: var(--kamri-gray-500);
+  font-size: var(--kamri-font-size-sm);
+}
+
+// === OVERRIDES QUASAR ===
+.q-page {
+  background: var(--kamri-bg-secondary);
+  color: var(--kamri-gray-800);
+}
+
+.q-header {
+  background: var(--kamri-bg-primary) !important;
+  color: var(--kamri-gray-800) !important;
+  box-shadow: var(--kamri-shadow-sm) !important;
+}
+
+.q-footer {
+  background: var(--kamri-gray-800) !important;
+  color: white !important;
+}
+
+.q-toolbar {
+  background: var(--kamri-bg-primary) !important;
+  color: var(--kamri-gray-800) !important;
+}
+
+.q-btn {
+  color: var(--kamri-gray-800) !important;
+
+  &.q-btn--flat {
+    color: var(--kamri-gray-700) !important;
+
+    &:hover {
+      background: var(--kamri-gray-100) !important;
+      color: var(--kamri-primary) !important;
+    }
+  }
+}
+
+.q-item {
+  color: var(--kamri-gray-800) !important;
+
+  &:hover {
+    background: var(--kamri-gray-100) !important;
+    color: var(--kamri-primary) !important;
+  }
+}
+
+.q-field__label {
+  color: var(--kamri-gray-600) !important;
+}
+
+.q-field__control {
+  color: var(--kamri-gray-800) !important;
+}
+
+// === CORRECTIONS SPÉCIFIQUES ===
+.q-btn-dropdown {
+  color: var(--kamri-gray-800) !important;
+
+  .q-btn__content {
+    color: var(--kamri-gray-800) !important;
+  }
+}
+
+.q-list {
+  color: var(--kamri-gray-800) !important;
+}
+
+.q-item__label {
+  color: var(--kamri-gray-800) !important;
+}
+
+.q-item__section {
+  color: var(--kamri-gray-800) !important;
+}
+
+.q-icon {
+  color: var(--kamri-gray-700) !important;
+}
+
+.q-badge {
+  color: white !important;
+}
+
+// === CORRECTIONS POUR LES INPUTS ===
+.q-field--outlined .q-field__control {
+  color: var(--kamri-gray-800) !important;
+}
+
+.q-field--outlined .q-field__native {
+  color: var(--kamri-gray-800) !important;
+}
+
+// === CORRECTIONS POUR LES DROPDOWNS ===
+.q-menu {
+  background: var(--kamri-bg-primary) !important;
+  color: var(--kamri-gray-800) !important;
+  border: 1px solid var(--kamri-gray-200);
+  box-shadow: var(--kamri-shadow-lg);
+}
+
+.q-popup-proxy {
+  background: var(--kamri-bg-primary) !important;
+  color: var(--kamri-gray-800) !important;
+}
+
+// === SCROLLBAR PERSONNALISÉE ===
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--kamri-gray-100);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--kamri-gray-300);
+  border-radius: var(--kamri-radius);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--kamri-gray-400);
+}

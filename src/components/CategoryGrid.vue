@@ -1,27 +1,16 @@
 <template>
   <div class="category-grid q-px-sm">
     <!-- Loading state -->
-    <div v-if="loading" class="row q-col-gutter-md justify-center">
-      <div
-        v-for="n in 12"
-        :key="n"
-        class="col-4 col-sm-3 col-md-2"
-      >
-        <q-skeleton
-          type="rect"
-          class="skeleton-card"
-        />
+    <div v-if="loading" class="row q-gutter-lg justify-center">
+      <div v-for="n in 12" :key="n" class="col-6 col-sm-4 col-md-3 col-lg-3">
+        <q-skeleton type="rect" class="skeleton-card" />
       </div>
     </div>
 
     <!-- Error state -->
     <div v-else-if="error" class="text-center q-pa-md">
       <div class="text-negative q-mb-md">{{ error }}</div>
-      <q-btn
-        label="Réessayer"
-        color="primary"
-        @click="$emit('retry')"
-      />
+      <q-btn label="Réessayer" color="primary" @click="$emit('retry')" />
     </div>
 
     <!-- Empty state -->
@@ -30,44 +19,39 @@
     </div>
 
     <!-- Categories grid -->
-    <div v-else class="row q-col-gutter-md justify-center">
-      <div
-        v-for="cat in categories"
-        :key="cat.id"
-        class="col-4 col-sm-3 col-md-2"
-      >
-        <CategoryCard
-          :category="cat"
-          @click="$emit('select', cat)"
-        />
+    <div v-else class="row q-gutter-lg justify-center">
+      <div v-for="cat in categories" :key="cat.id" class="col-6 col-sm-4 col-md-3 col-lg-3">
+        <CategoryCard :category="cat" @click="$emit('select', cat)" />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import CategoryCard from './CategoryCard.vue';
+import CategoryCard from './CategoryCard.vue'
 
 defineProps({
   categories: {
     type: Array,
     required: true,
-    default: () => []
+    default: () => [],
   },
   loading: {
     type: Boolean,
-    default: false
+    default: false,
   },
   error: {
     type: String,
-    default: ''
-  }
+    default: '',
+  },
 })
 
 defineEmits(['select', 'retry'])
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@use 'src/css/_tokens.scss' as *;
+
 .category-grid {
   max-width: 100%;
 }

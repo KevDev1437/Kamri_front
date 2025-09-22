@@ -1,155 +1,147 @@
 <!-- src/components/LiveVideo.vue -->
 <template>
-  <div class="live-container q-pa-xl">
-    <div class="header-row q-mb-lg">
-      <h2 class="text-h4">Live Shopping</h2>
-      <div class="live-info" v-if="isLive">
-        <q-badge color="red" class="live-badge">
-          LIVE
-        </q-badge>
-        <span class="viewer-count" v-if="viewerCount">
-          {{ formatViewerCount(viewerCount) }} spectateurs
-        </span>
-      </div>
-    </div>
-
-    <!-- États de streaming -->
-    <q-responsive :ratio="16/9" class="video-frame q-mx-auto">
-      <!-- Chargement -->
-      <template v-if="loading">
-        <div class="placeholder flex flex-center column">
-          <q-spinner size="50px" color="primary" />
-          <div class="q-mt-sm">Chargement du stream...</div>
-        </div>
-      </template>
-
-      <!-- Erreur -->
-      <template v-else-if="error">
-        <div class="placeholder flex flex-center column">
-          <q-icon name="error" size="50px" color="negative" />
-          <div class="text-negative q-mt-sm">{{ error }}</div>
-          <q-btn
-            flat
-            color="primary"
-            label="Réessayer"
-            @click="$emit('retry')"
-            class="q-mt-md"
-          />
-        </div>
-      </template>
-
-      <!-- Pas de live en cours -->
-      <template v-else-if="!isLive">
-        <div class="placeholder flex flex-center column">
-          <q-icon name="slideshow" size="50px" color="grey-7" />
-          <div class="q-mt-sm">Aucun live en cours</div>
-          <div class="text-caption q-mt-sm" v-if="nextLiveDate">
-            Prochain live le {{ formatDate(nextLiveDate) }}
+  <section class="live-section">
+    <div class="live-banner">
+      <div class="container-1200 q-px-md q-px-lg-none">
+        <div class="header-row q-mb-lg">
+          <h2 class="live-title">Live Shopping</h2>
+          <div class="live-info" v-if="isLive">
+            <q-badge color="red" class="live-badge"> LIVE </q-badge>
+            <span class="viewer-count" v-if="viewerCount">
+              {{ formatViewerCount(viewerCount) }} spectateurs
+            </span>
           </div>
         </div>
-      </template>
 
-      <!-- Stream -->
-      <template v-else>
-        <video
-          v-if="streamUrl"
-          ref="videoPlayer"
-          class="video-player"
-          controls
-          :src="streamUrl"
-          @error="handleVideoError"
-        />
-        <div v-else class="placeholder flex flex-center">
-          <q-spinner-dots color="primary" size="40px" />
+        <!-- États de streaming -->
+        <q-responsive :ratio="16 / 9" class="video-frame q-mx-auto">
+          <!-- Chargement -->
+          <template v-if="loading">
+            <div class="placeholder flex flex-center column">
+              <q-spinner size="50px" color="primary" />
+              <div class="q-mt-sm">Chargement du stream...</div>
+            </div>
+          </template>
+
+          <!-- Erreur -->
+          <template v-else-if="error">
+            <div class="placeholder flex flex-center column">
+              <q-icon name="error" size="50px" color="negative" />
+              <div class="text-negative q-mt-sm">{{ error }}</div>
+              <q-btn
+                flat
+                color="primary"
+                label="Réessayer"
+                @click="$emit('retry')"
+                class="q-mt-md"
+              />
+            </div>
+          </template>
+
+          <!-- Pas de live en cours -->
+          <template v-else-if="!isLive">
+            <div class="placeholder flex flex-center column">
+              <q-icon name="slideshow" size="50px" color="grey-7" />
+              <div class="q-mt-sm">Aucun live en cours</div>
+              <div class="text-caption q-mt-sm" v-if="nextLiveDate">
+                Prochain live le {{ formatDate(nextLiveDate) }}
+              </div>
+            </div>
+          </template>
+
+          <!-- Stream -->
+          <template v-else>
+            <video
+              v-if="streamUrl"
+              ref="videoPlayer"
+              class="video-player"
+              controls
+              :src="streamUrl"
+              @error="handleVideoError"
+            />
+            <div v-else class="placeholder flex flex-center">
+              <q-spinner-dots color="primary" size="40px" />
+            </div>
+          </template>
+        </q-responsive>
+
+        <!-- Actions -->
+        <div class="actions-row q-mt-lg">
+          <!-- Bouton principal -->
+          <q-btn
+            v-if="isLive"
+            color="accent"
+            :label="joined ? 'Quitter le live' : 'Rejoindre le live'"
+            size="lg"
+            :loading="joining"
+            @click="handleJoinLeave"
+          />
+
+          <!-- Notification pour le prochain live -->
+          <q-btn
+            v-else-if="nextLiveDate"
+            outline
+            color="accent"
+            label="Me notifier"
+            size="lg"
+            @click="$emit('notify')"
+          />
+
+          <!-- Actions secondaires -->
+          <div class="secondary-actions" v-if="isLive">
+            <q-btn flat round color="white" icon="share" @click="$emit('share')" />
+            <q-btn
+              flat
+              round
+              :color="isMuted ? 'white' : 'accent'"
+              :icon="isMuted ? 'volume_off' : 'volume_up'"
+              @click="toggleMute"
+            />
+          </div>
         </div>
-      </template>
-    </q-responsive>
-
-    <!-- Actions -->
-    <div class="actions-row q-mt-lg">
-      <!-- Bouton principal -->
-      <q-btn
-        v-if="isLive"
-        color="primary"
-        :label="joined ? 'Quitter le live' : 'Rejoindre le live'"
-        size="lg"
-        :loading="joining"
-        @click="handleJoinLeave"
-      />
-
-      <!-- Notification pour le prochain live -->
-      <q-btn
-        v-else-if="nextLiveDate"
-        outline
-        color="primary"
-        label="Me notifier"
-        size="lg"
-        @click="$emit('notify')"
-      />
-
-      <!-- Actions secondaires -->
-      <div class="secondary-actions" v-if="isLive">
-        <q-btn
-          flat
-          round
-          color="grey-7"
-          icon="share"
-          @click="$emit('share')"
-        />
-        <q-btn
-          flat
-          round
-          :color="isMuted ? 'grey-7' : 'primary'"
-          :icon="isMuted ? 'volume_off' : 'volume_up'"
-          @click="toggleMute"
-        />
       </div>
     </div>
 
     <!-- Chat en direct si rejoint -->
     <div v-if="joined && isLive" class="chat-section q-mt-lg">
-      <div class="text-h6">Chat en direct</div>
-      <div class="chat-messages q-mt-md" ref="chatContainer">
-        <!-- Messages -->
-        <template v-if="messages.length">
-          <div
-            v-for="msg in messages"
-            :key="msg.id"
-            class="chat-message q-py-sm"
-          >
-            <strong>{{ msg.username }}:</strong> {{ msg.text }}
-          </div>
-        </template>
-        <div v-else class="text-center text-grey-7 q-py-xl">
-          Soyez le premier à commenter !
+      <div class="container-1200 q-px-md q-px-lg-none">
+        <div class="text-h6 text-white">Chat en direct</div>
+        <div class="chat-messages q-mt-md" ref="chatContainer">
+          <!-- Messages -->
+          <template v-if="messages.length">
+            <div v-for="msg in messages" :key="msg.id" class="chat-message q-py-sm">
+              <strong>{{ msg.username }}:</strong> {{ msg.text }}
+            </div>
+          </template>
+          <div v-else class="text-center text-white q-py-xl">Soyez le premier à commenter !</div>
         </div>
-      </div>
 
-      <!-- Input chat -->
-      <q-input
-        v-model="newMessage"
-        dense
-        outlined
-        placeholder="Écrivez un message..."
-        class="q-mt-md"
-        :disable="sendingMessage"
-        @keyup.enter="sendMessage"
-      >
-        <template v-slot:append>
-          <q-btn
-            round
-            dense
-            flat
-            icon="send"
-            color="primary"
-            :disable="!newMessage.trim()"
-            :loading="sendingMessage"
-            @click="sendMessage"
-          />
-        </template>
-      </q-input>
+        <!-- Input chat -->
+        <q-input
+          v-model="newMessage"
+          dense
+          outlined
+          placeholder="Écrivez un message..."
+          class="q-mt-md"
+          :disable="sendingMessage"
+          @keyup.enter="sendMessage"
+        >
+          <template v-slot:append>
+            <q-btn
+              round
+              dense
+              flat
+              icon="send"
+              color="accent"
+              :disable="!newMessage.trim()"
+              :loading="sendingMessage"
+              @click="sendMessage"
+            />
+          </template>
+        </q-input>
+      </div>
     </div>
-  </div>
+  </section>
 </template>
 
 <script setup>
@@ -160,35 +152,27 @@ defineProps({
   streamUrl: String,
   isLive: {
     type: Boolean,
-    default: false
+    default: false,
   },
   loading: {
     type: Boolean,
-    default: false
+    default: false,
   },
   error: {
     type: String,
-    default: ''
+    default: '',
   },
   viewerCount: {
     type: Number,
-    default: 0
+    default: 0,
   },
   nextLiveDate: {
     type: String,
-    default: ''
-  }
+    default: '',
+  },
 })
 
-const emit = defineEmits([
-  'retry',
-  'join',
-  'leave',
-  'share',
-  'notify',
-  'send-message',
-  'error'
-])
+const emit = defineEmits(['retry', 'join', 'leave', 'share', 'notify', 'send-message', 'error'])
 
 // État local
 const videoPlayer = ref(null)
@@ -202,10 +186,10 @@ const sendingMessage = ref(false)
 // Formatage des nombres
 const formatViewerCount = (count) => {
   if (count >= 1000000) {
-    return `${(count/1000000).toFixed(1)}M`
+    return `${(count / 1000000).toFixed(1)}M`
   }
   if (count >= 1000) {
-    return `${(count/1000).toFixed(1)}k`
+    return `${(count / 1000).toFixed(1)}k`
   }
   return count.toString()
 }
@@ -217,7 +201,7 @@ const formatDate = (dateString) => {
     day: 'numeric',
     month: 'long',
     hour: 'numeric',
-    minute: 'numeric'
+    minute: 'numeric',
   })
 }
 
@@ -233,7 +217,7 @@ const toggleMute = () => {
 const handleVideoError = (event) => {
   emit('error', {
     type: 'video',
-    error: event.target.error
+    error: event.target.error,
   })
 }
 
@@ -264,7 +248,7 @@ const sendMessage = async () => {
     await emit('send-message', newMessage.value)
     newMessage.value = ''
   } catch (err) {
-    console.error('Erreur lors de l\'envoi du message:', err)
+    console.error("Erreur lors de l'envoi du message:", err)
   } finally {
     sendingMessage.value = false
   }
@@ -278,12 +262,26 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
-.live-container {
-  background: #ffffff;
-  border-radius: 12px;
-  max-width: 1200px;
-  margin: auto;
+<style lang="scss" scoped>
+@use 'src/css/_tokens.scss' as *;
+
+.live-section {
+  position: relative;
+  overflow: hidden;
+}
+
+.live-banner {
+  @extend %grad-dark;
+  color: white;
+  padding: 2rem 0;
+  position: relative;
+}
+
+.live-title {
+  color: white;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
 }
 
 .header-row {
@@ -304,16 +302,17 @@ onUnmounted(() => {
 }
 
 .viewer-count {
-  color: #666;
+  color: rgba(255, 255, 255, 0.8);
   font-size: 0.9rem;
 }
 
 .video-frame {
   width: 100%;
   max-width: 1000px;
-  background: #f8f9fa;
-  border-radius: 12px;
+  background: #1f2937;
+  border-radius: $radius-md;
   overflow: hidden;
+  box-shadow: $shadow-2;
 }
 
 .video-player {
@@ -325,7 +324,7 @@ onUnmounted(() => {
 .placeholder {
   height: 100%;
   text-align: center;
-  color: #666;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .actions-row {
@@ -341,26 +340,28 @@ onUnmounted(() => {
 }
 
 .chat-section {
-  max-width: 800px;
-  margin: 0 auto;
+  @extend %grad-dark;
+  padding: 2rem 0;
 }
 
 .chat-messages {
   height: 300px;
   overflow-y: auto;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: $radius-md;
   padding: 16px;
-  background: #f8f9fa;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
 }
 
 .chat-message {
   padding: 8px 16px;
-  border-radius: 4px;
+  border-radius: $radius-sm;
   transition: background-color 0.2s ease;
+  color: white;
 }
 
 .chat-message:hover {
-  background: #f1f1f1;
+  background: rgba(255, 255, 255, 0.1);
 }
 </style>

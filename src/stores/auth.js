@@ -201,6 +201,138 @@ export const useAuthStore = defineStore('auth', {
       delete api.defaults.headers.common['Authorization']
     },
 
+    // Rafraîchir le token
+    async refreshToken() {
+      try {
+        const response = await api.post('/api/refresh')
+
+        if (response.data.success) {
+          this.token = response.data.token
+          localStorage.setItem('auth_token', this.token)
+          this.setAuthHeader()
+          return { success: true, token: this.token }
+        } else {
+          this.logout()
+          return { success: false, message: 'Token refresh failed' }
+        }
+      } catch {
+        this.logout()
+        return { success: false, message: 'Token refresh failed' }
+      }
+    },
+
+    // Demander la réinitialisation du mot de passe
+    async requestPasswordReset(email) {
+      this.loading = true
+      this.error = null
+
+      try {
+        const response = await api.post('/api/password/email', { email })
+
+        if (response.data.success) {
+          return { success: true, message: response.data.message }
+        } else {
+          this.error = response.data.message
+          return { success: false, message: response.data.message }
+        }
+      } catch (error) {
+        this.error = error.response?.data?.message || "Erreur lors de l'envoi de l'email"
+        return {
+          success: false,
+          message: this.error,
+          errors: error.response?.data?.errors,
+        }
+      } finally {
+        this.loading = false
+      }
+    },
+
+    // Réinitialiser le mot de passe
+    async resetPassword({ token, email, password, password_confirmation }) {
+      this.loading = true
+      this.error = null
+
+      try {
+        const response = await api.post('/api/password/reset', {
+          token,
+          email,
+          password,
+          password_confirmation,
+        })
+
+        if (response.data.success) {
+          return { success: true, message: response.data.message }
+        } else {
+          this.error = response.data.message
+          return { success: false, message: response.data.message }
+        }
+      } catch (error) {
+        this.error = error.response?.data?.message || 'Erreur lors de la réinitialisation'
+        return {
+          success: false,
+          message: this.error,
+          errors: error.response?.data?.errors,
+        }
+      } finally {
+        this.loading = false
+      }
+    },
+
+    // Renvoyer l'email de vérification
+    async resendVerification() {
+      this.loading = true
+      this.error = null
+
+      try {
+        const response = await api.post(
+          '/api/email/verification-notification',
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${this.token}`,
+            },
+          },
+        )
+
+        if (response.data.success) {
+          return { success: true, message: response.data.message }
+        } else {
+          this.error = response.data.message
+          return { success: false, message: response.data.message }
+        }
+      } catch (error) {
+        this.error = error.response?.data?.message || "Erreur lors de l'envoi de l'email"
+        return {
+          success: false,
+          message: this.error,
+        }
+      } finally {
+        this.loading = false
+      }
+    },
+
+    // Vérifier le statut de vérification email
+    async checkVerification() {
+      if (!this.token) return { success: false, message: 'Non connecté' }
+
+      try {
+        const response = await api.get('/api/user', {
+          headers: {
+            Authorization: `Bearer ${this.token}`,
+          },
+        })
+
+        if (response.data.success) {
+          this.user = response.data.user
+          return { success: true, user: this.user }
+        } else {
+          return { success: false, message: 'Erreur lors de la vérification' }
+        }
+      } catch {
+        return { success: false, message: 'Erreur lors de la vérification' }
+      }
+    },
+
     // Effacer les erreurs
     clearError() {
       this.error = null
