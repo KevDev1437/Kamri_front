@@ -112,8 +112,8 @@
 
 <script setup>
 import { computed } from 'vue'
-import { formatNumber, formatPrice } from 'src/utils/number'
 import { useWishlistStore } from 'stores/wishlist'
+import { useFormat } from 'src/composables/useFormat'
 
 const props = defineProps({
   product: {
@@ -141,6 +141,7 @@ const props = defineProps({
 const emit = defineEmits(['click', 'favorite', 'add-to-cart', 'quick-view', 'error'])
 
 const wishlistStore = useWishlistStore()
+const { formatPrice } = useFormat()
 
 // Pré-chauffe chunk PDP au hover
 function prefetchPdpChunk() {

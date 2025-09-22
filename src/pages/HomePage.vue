@@ -7,13 +7,13 @@
         <div class="container-1200 q-px-md q-px-lg-none">
           <div class="hero-content">
             <div class="hero-text">
-              <h1 class="hero-title">DÉCOUVREZ LES NOUVEAUTÉS AUTOMNALES</h1>
-              <p class="hero-subtitle">Jusqu'à -70% sur des milliers d'articles</p>
+              <h1 class="hero-title">{{ t('home.hero.title') }}</h1>
+              <p class="hero-subtitle">{{ t('home.hero.subtitle') }}</p>
               <div class="hero-actions">
                 <q-btn
                   class="hero-btn"
                   size="lg"
-                  label="Découvrir"
+                  :label="t('home.hero.cta')"
                   color="secondary"
                   unelevated
                   no-caps
@@ -69,8 +69,8 @@
     <section class="section">
       <div class="container-1200 q-px-md q-px-lg-none">
         <div class="section-header">
-          <h2 class="section-title">TENDANCES DU MOMENT</h2>
-          <p class="section-subtitle">Les produits les plus vendus</p>
+          <h2 class="section-title">{{ t('home.trending') }}</h2>
+          <p class="section-subtitle">{{ t('home.featured') }}</p>
         </div>
         <ProductGrid :products="featuredProducts" />
       </div>
@@ -117,6 +117,7 @@ import { useCategoriesStore } from 'stores/categories'
 import { useMagazineStore } from 'stores/magazine'
 import { useLiveStore } from 'stores/live'
 import { useSeo } from 'src/composables/useSeo'
+import { useFormat } from 'src/composables/useFormat'
 import { buildCanonical, breadcrumbJsonLd } from 'src/utils/seo'
 
 // Stores
@@ -124,6 +125,9 @@ const productsStore = useProductsStore()
 const categoriesStore = useCategoriesStore()
 const magazineStore = useMagazineStore()
 const liveStore = useLiveStore()
+
+// Formatage et i18n
+const { t } = useFormat()
 
 // SEO
 const SITE_URL = import.meta.env.VITE_SITE_URL || 'http://localhost:9000'
@@ -135,6 +139,10 @@ useSeo({
   canonical: buildCanonical(SITE_URL, route.fullPath),
   image: '/og-default.jpg',
   jsonLd: [breadcrumbJsonLd(SITE_URL, [{ name: 'Accueil', path: '/' }])],
+  hreflangs: [
+    { lang: 'fr', href: SITE_URL + route.fullPath },
+    { lang: 'en', href: SITE_URL + '/en' + route.fullPath },
+  ],
 })
 
 // Computed properties

@@ -8,6 +8,7 @@ type MetaInput = {
   image?: string
   noindex?: boolean
   jsonLd?: any[] // tableau de schémas JSON-LD
+  hreflangs?: Array<{ lang: string; href: string }> // alternatives linguistiques
 }
 
 export function useSeo(input: MetaInput) {
@@ -18,6 +19,7 @@ export function useSeo(input: MetaInput) {
     image = '/og-default.jpg',
     noindex = false,
     jsonLd = [],
+    hreflangs = [],
   } = input
 
   useMeta(() => {
@@ -45,6 +47,11 @@ export function useSeo(input: MetaInput) {
     if (canonical) {
       linkArr.push({ rel: 'canonical', href: canonical })
     }
+
+    // Hreflang alternatives
+    hreflangs.forEach(({ lang, href }) => {
+      linkArr.push({ rel: 'alternate', hreflang: lang, href })
+    })
 
     // JSON-LD scripts
     const scriptArr: any[] = (jsonLd || []).map((schema) => ({

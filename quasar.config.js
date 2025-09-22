@@ -3,6 +3,7 @@
 
 import { defineConfig } from '#q-app/wrappers'
 import { fileURLToPath } from 'node:url'
+import viteCompression from 'vite-plugin-compression'
 
 export default defineConfig((ctx) => {
   return {
@@ -76,13 +77,6 @@ export default defineConfig((ctx) => {
         // drop console/debugger (esbuild options)
         viteConf.esbuild = viteConf.esbuild || {}
         viteConf.esbuild.drop = ['console', 'debugger']
-
-        // Plugins performance
-        viteConf.plugins = viteConf.plugins || []
-        // Compression gzip + brotli
-        const compression = require('vite-plugin-compression').default
-        viteConf.plugins.push(compression({ algorithm: 'brotliCompress' }))
-        viteConf.plugins.push(compression({ algorithm: 'gzip' }))
       },
       // viteVuePluginOptions: {},
 
@@ -113,6 +107,24 @@ export default defineConfig((ctx) => {
             },
           },
           { server: false },
+        ],
+
+        // Compression gzip + brotli
+        [
+          viteCompression,
+          {
+            algorithm: 'gzip',
+            ext: '.gz',
+            threshold: 10240,
+          },
+        ],
+        [
+          viteCompression,
+          {
+            algorithm: 'brotliCompress',
+            ext: '.br',
+            compressionOptions: { level: 11 },
+          },
         ],
       ],
     },

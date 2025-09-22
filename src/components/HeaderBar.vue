@@ -171,6 +171,11 @@
           </q-list>
         </q-btn-dropdown>
 
+        <!-- Language & Currency Switcher -->
+        <div class="desktop-only">
+          <LanguageCurrencySwitcher />
+        </div>
+
         <!-- Favorites -->
         <q-btn flat round dense class="desktop-only">
           <template v-slot:default>
@@ -235,6 +240,7 @@
 
 <script setup>
 import SearchBar from 'components/SearchBar.vue'
+import LanguageCurrencySwitcher from 'components/LanguageCurrencySwitcher.vue'
 import { useQuasar } from 'quasar'
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
