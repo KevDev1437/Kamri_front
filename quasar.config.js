@@ -18,7 +18,7 @@ export default defineConfig((ctx) => {
     css: ['app.scss'],
 
     // https://github.com/quasarframework/quasar/tree/dev/extras
-    extras: ['fontawesome-v6', 'roboto-font', 'material-icons'],
+    extras: ['roboto-font', 'material-icons'], // Réduit les extras non utilisés
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#build
     build: {
@@ -39,11 +39,51 @@ export default defineConfig((ctx) => {
       // env: {},
       // rawDefine: {}
       // ignorePublicFolder: true,
-      // minify: false,
+      minify: true, // Améliore la minification
       // polyfillModulePreload: true,
       // distDir
 
-      // extendViteConf (viteConf) {},
+      extendViteConf(viteConf) {
+        viteConf.build = viteConf.build || {}
+        viteConf.build.cssCodeSplit = true
+        viteConf.build.commonjsOptions = { transformMixedEsModules: true }
+
+        viteConf.build.rollupOptions = viteConf.build.rollupOptions || {}
+        viteConf.build.rollupOptions.output = viteConf.build.rollupOptions.output || {}
+        viteConf.build.rollupOptions.output.manualChunks = {
+          // vendors
+          vendor: ['axios'],
+          vue: ['vue', 'vue-router', 'pinia'],
+          quasar: ['quasar'],
+          // feature-chunks
+          stripe: ['@stripe/stripe-js'],
+          catalog: ['src/pages/ProductsPage.vue', 'src/components/FiltersSidebar.vue'],
+          pdp: ['src/pages/ProductPage.vue', 'src/stores/reviews.js'],
+          checkout: [
+            'src/pages/checkout/CheckoutPage.vue',
+            'src/pages/checkout/CheckoutSuccessPage.vue',
+            'src/components/CheckoutSidebar.vue',
+          ],
+          account: [
+            'src/pages/account/OrdersPage.vue',
+            'src/pages/account/OrderDetailPage.vue',
+            'src/pages/account/WishlistPage.vue',
+            'src/pages/account/AddressesPage.vue',
+          ],
+          magazine: ['src/pages/magazine/ArticlePage.vue', 'src/components/MagazineSection.vue'],
+        }
+
+        // drop console/debugger (esbuild options)
+        viteConf.esbuild = viteConf.esbuild || {}
+        viteConf.esbuild.drop = ['console', 'debugger']
+
+        // Plugins performance
+        viteConf.plugins = viteConf.plugins || []
+        // Compression gzip + brotli
+        const compression = require('vite-plugin-compression').default
+        viteConf.plugins.push(compression({ algorithm: 'brotliCompress' }))
+        viteConf.plugins.push(compression({ algorithm: 'gzip' }))
+      },
       // viteVuePluginOptions: {},
 
       vitePlugins: [

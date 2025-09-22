@@ -88,6 +88,12 @@ export const useCheckoutStore = defineStore('checkout', {
 
     // Récupérer les options de livraison
     async fetchDeliveryOptions() {
+      // Éviter les appels si le total est 0
+      if (this.total <= 0) {
+        this.deliveryOptions = []
+        return
+      }
+
       this.loading = true
       try {
         const { data } = await api.get('/api/shipping/methods', {

@@ -7,7 +7,16 @@
     @click="readArticle"
     :aria-label="`Lire l'article ${article.title}`"
   >
-    <q-img :src="article.image" ratio="16/9" class="article-image" />
+    <q-img
+      :src="article.image"
+      ratio="16/9"
+      class="article-image"
+      loading="lazy"
+      decoding="async"
+      fetchpriority="low"
+      placeholder-src="/img/placeholder-800x450.jpg"
+      :alt="article.title"
+    />
     <q-card-section class="article-content">
       <div class="article-title">{{ article.title }}</div>
       <div class="article-date">{{ article.date }}</div>

@@ -90,6 +90,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+// Optimisation des fonts
+@font-face {
+  font-display: swap;
+}
+
 // === CLASSES UTILITAIRES ===
 .container-1200 {
   max-width: 1200px;

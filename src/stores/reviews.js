@@ -20,6 +20,9 @@ export const useReviewsStore = defineStore('reviews', {
     // Résumé
     average: 0,
     counts: { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 },
+
+    // Cache pour éviter les requêtes inutiles
+    lastQuery: null,
   }),
 
   getters: {
@@ -99,10 +102,27 @@ export const useReviewsStore = defineStore('reviews', {
     },
 
     // Récupère les avis depuis l'API
+    // Vérifier si la query a changé
+    hasQueryChanged() {
+      const currentQuery = JSON.stringify({
+        productId: this.productId,
+        rating: this.rating,
+        withPhotos: this.withPhotos,
+        sort: this.sort,
+        page: this.page,
+      })
+      return currentQuery !== this.lastQuery
+    },
+
     async fetch(productId) {
+      if (!this.hasQueryChanged() && this.items.length > 0) {
+        return // Éviter les requêtes inutiles
+      }
+
       this.loading = true
       this.error = null
       this.productId = productId
+      this.page = 1 // Reset page pour nouvelle recherche
 
       try {
         const params = {
@@ -121,6 +141,13 @@ export const useReviewsStore = defineStore('reviews', {
           this.total = response.data.total
           this.average = response.data.average
           this.counts = response.data.counts
+          this.lastQuery = JSON.stringify({
+            productId: this.productId,
+            rating: this.rating,
+            withPhotos: this.withPhotos,
+            sort: this.sort,
+            page: this.page,
+          })
         } else {
           this.error = response.data.message || 'Erreur lors du chargement des avis'
           Notify.create({

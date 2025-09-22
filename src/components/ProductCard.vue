@@ -15,7 +15,14 @@
         ratio="4/3"
         class="product-image"
         :alt="product.name"
+        loading="lazy"
+        decoding="async"
+        fetchpriority="low"
+        :img-style="{ 'will-change': 'transform' }"
+        placeholder-src="/img/placeholder-400x300.jpg"
         @error="handleImageError"
+        @mouseover="prefetchPdpChunk"
+        @focus="prefetchPdpChunk"
       >
         <template v-slot:error>
           <div class="image-error flex flex-center">
@@ -134,6 +141,12 @@ const props = defineProps({
 const emit = defineEmits(['click', 'favorite', 'add-to-cart', 'quick-view', 'error'])
 
 const wishlistStore = useWishlistStore()
+
+// Pré-chauffe chunk PDP au hover
+function prefetchPdpChunk() {
+  // Vite va charger le chunk en arrière-plan
+  import('src/pages/ProductPage.vue')
+}
 
 // Gestion des badges
 const hasBadges = computed(() => {
