@@ -206,17 +206,47 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useCatalogStore } from 'stores/catalog'
 import { debounce } from 'quasar'
 import ProductGrid from 'components/ProductGrid.vue'
 import FiltersSidebar from 'components/FiltersSidebar.vue'
 import ProductCardSkeleton from 'components/ProductCardSkeleton.vue'
+import { useSeo } from 'src/composables/useSeo'
+import { buildCanonical, itemListJsonLd, breadcrumbJsonLd, truncate } from 'src/utils/seo'
 
 const route = useRoute()
 const router = useRouter()
 const catalog = useCatalogStore()
+
+// SEO
+const SITE_URL = import.meta.env.VITE_SITE_URL || 'http://localhost:9000'
+
+const pageTitle = computed(() => {
+  const q = catalog.q ? `"${catalog.q}" – ` : ''
+  return `KAMRI – ${q}Catalogue`
+})
+
+const pageDesc = computed(() => {
+  const base =
+    'Parcourez notre catalogue et affinez par filtres : prix, marques, notes, disponibilité.'
+  return truncate(base, 160)
+})
+
+useSeo({
+  title: pageTitle.value,
+  description: pageDesc.value,
+  canonical: buildCanonical(SITE_URL, route.fullPath),
+  image: '/og-default.jpg',
+  jsonLd: [
+    breadcrumbJsonLd(SITE_URL, [
+      { name: 'Accueil', path: '/' },
+      { name: 'Catalogue', path: '/products' },
+    ]),
+    itemListJsonLd(SITE_URL, catalog.items || []),
+  ],
+})
 
 // State
 const showMobileFilters = ref(false)

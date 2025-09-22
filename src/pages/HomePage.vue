@@ -111,16 +111,31 @@ import MagazineSection from 'components/MagazineSection.vue'
 import StyleQuiz from 'components/StyleQuiz.vue'
 import ProductGrid from 'src/components/ProductGrid.vue'
 import { onMounted, computed } from 'vue'
+import { useRoute } from 'vue-router'
 import { useProductsStore } from 'stores/products'
 import { useCategoriesStore } from 'stores/categories'
 import { useMagazineStore } from 'stores/magazine'
 import { useLiveStore } from 'stores/live'
+import { useSeo } from 'src/composables/useSeo'
+import { buildCanonical, breadcrumbJsonLd } from 'src/utils/seo'
 
 // Stores
 const productsStore = useProductsStore()
 const categoriesStore = useCategoriesStore()
 const magazineStore = useMagazineStore()
 const liveStore = useLiveStore()
+
+// SEO
+const SITE_URL = import.meta.env.VITE_SITE_URL || 'http://localhost:9000'
+const route = useRoute()
+
+useSeo({
+  title: 'KAMRI – Nouveautés exclusives',
+  description: 'Découvrez nos meilleures sélections : mode, high-tech, maison et plus.',
+  canonical: buildCanonical(SITE_URL, route.fullPath),
+  image: '/og-default.jpg',
+  jsonLd: [breadcrumbJsonLd(SITE_URL, [{ name: 'Accueil', path: '/' }])],
+})
 
 // Computed properties
 const categories = computed(() => categoriesStore.getAllCategories)

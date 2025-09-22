@@ -187,13 +187,24 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useQuasar } from 'quasar'
 import { api } from 'boot/axios'
+import { useSeo } from 'src/composables/useSeo'
+import {
+  buildCanonical,
+  productJsonLd,
+  productOgImage,
+  breadcrumbJsonLd,
+  truncate,
+} from 'src/utils/seo'
 
 const route = useRoute()
 const $q = useQuasar()
+
+// SEO
+const SITE_URL = import.meta.env.VITE_SITE_URL || 'http://localhost:9000'
 
 // State
 const product = ref(null)
@@ -204,6 +215,37 @@ const quantity = ref(1)
 
 // Computed
 const productId = computed(() => route.params.id)
+
+// SEO computed
+const title = computed(() => (product.value ? `${product.value.name} – KAMRI` : 'Produit – KAMRI'))
+const desc = computed(() =>
+  truncate(product.value?.description || product.value?.name || 'Voir produit', 160),
+)
+const img = computed(() => productOgImage(product.value))
+
+// SEO watcher pour mettre à jour quand le produit est chargé
+watch(
+  () => product.value,
+  (newProduct) => {
+    if (newProduct) {
+      useSeo({
+        title: title.value,
+        description: desc.value,
+        canonical: buildCanonical(SITE_URL, route.fullPath),
+        image: img.value,
+        jsonLd: [
+          breadcrumbJsonLd(SITE_URL, [
+            { name: 'Accueil', path: '/' },
+            { name: 'Catalogue', path: '/products' },
+            { name: newProduct.name || 'Produit', path: route.fullPath },
+          ]),
+          productJsonLd(SITE_URL, newProduct),
+        ],
+      })
+    }
+  },
+  { immediate: true },
+)
 
 // Methods
 const fetchProduct = async () => {
